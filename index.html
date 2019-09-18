@@ -359,6 +359,32 @@ height:50vh;
     
     
     <article class="index-post">
+        <a class="abstract-title" href = "/2019/09/11/护网杯-silentheap-writeup/" >
+            
+                <span>护网杯 silentheap writeup</span>
+        </a>
+        <div class="abstract-content">
+            漏洞分析
+在dele函数中,第二次循环并没有循环到9,如果dele时输入9,会直接free掉ptr[9],此时dword_804AA60[i]=0.
+
+1234567891011121314151617181920212223242526272829int dele()&#123;  int result; // eax  int v1; // [esp+8h] [ebp-10h]  signed int i; // [esp+Ch] [ebp-Ch]  result = sub_8048671();  v1 = result;  if ( result &gt;= 0 &amp;&am...
+        </div>
+        <div class="abstract-post-meta">
+            <!-- date  -->
+            <div class="abstract-date">
+                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2019/09/11</span>
+            </div>
+            <!-- tags  -->
+            
+        </div>
+    </article>
+    
+    
+    
+    
+    
+    
+    <article class="index-post">
         <a class="abstract-title" href = "/2019/09/11/护网杯-mergeheap-Writeup/" >
             
                 <span>护网杯 mergeheap Writeup</span>
@@ -612,9 +638,18 @@ malloc_consolidate()函数分析该函数主要有两个功能。
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 2
+        Total : 3
         </div>
         <!-- search  -->
         
@@ -627,6 +662,11 @@ malloc_consolidate()函数分析该函数主要有两个功能。
     
     <div class="archive-year"> 2019 </div>
     <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/11</span><a class="archive-post-title" href= "/2019/09/11/护网杯-silentheap-writeup/" >护网杯 silentheap writeup</a>
+        </li>
     
     
         <li class="archive-post-item">
