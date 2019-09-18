@@ -346,6 +346,34 @@
     
     
     <article class="index-post">
+        <a class="abstract-title" href = "/2019/09/11/护网杯-mergeheap-Writeup/" >
+            
+                <span>护网杯 mergeheap Writeup</span>
+        </a>
+        <div class="abstract-content">
+            前言这道题考察的是堆溢出在高版本的libc的利用方式,在高版本的libc中引入了tcache机制
+
+ tcache是libc2.26之后引进的一种新机制，类似于fastbin一样的东西，每条链上最多可以有 7 个 chunk，free的时候当tcache满了才放入fastbin，unsorted bin，malloc的时候优先去tcache找到对应大小的chunk.
+
+漏洞分析在merge这个功能中,当分配的堆块占用了下一chunk的pre_size位时，strcpy的时候会将下一chunk的size也复制，再配合strcat会溢出一个字节,merge部分函数代码如下
+123456789...
+        </div>
+        <div class="abstract-post-meta">
+            <!-- date  -->
+            <div class="abstract-date">
+                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2019/09/11</span>
+            </div>
+            <!-- tags  -->
+            
+        </div>
+    </article>
+    
+    
+    
+    
+    
+    
+    <article class="index-post">
         <a class="abstract-title" href = "/2019/09/11/护网杯-flower-Writeup/" >
             
                 <span>护网杯 flower Writeup</span>
@@ -470,9 +498,16 @@ malloc_consolidate()函数分析该函数主要有两个功能。
     
     
     
+    
+    
+    
+    
+    
+    
+    
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 1
+        Total : 2
         </div>
         <!-- search  -->
         
@@ -489,6 +524,11 @@ malloc_consolidate()函数分析该函数主要有两个功能。
     
         <li class="archive-post-item">
             <span class="archive-post-date">09/11</span><a class="archive-post-title" href= "/2019/09/11/护网杯-flower-Writeup/" >护网杯 flower Writeup</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/11</span><a class="archive-post-title" href= "/2019/09/11/护网杯-mergeheap-Writeup/" >护网杯 mergeheap Writeup</a>
         </li>
     
     </div>
