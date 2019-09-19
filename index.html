@@ -359,6 +359,38 @@ height:50vh;
     
     
     <article class="index-post">
+        <a class="abstract-title" href = "/2019/09/19/利用-IO-2-1-stdout-泄露信息/" >
+            
+                <span>利用_IO_2_1_stdout_泄露信息</span>
+        </a>
+        <div class="abstract-content">
+            前言在最近的ctf比赛中,出现了好几次无法通过输出泄露libc地址的题目,本文通过两道例题学习一下利用_IO_2_1_stdout_泄露信息.
+FILE 介绍FILE 在 Linux 系统的标准IO库中是用于描述文件的结构，称为文件流。 FILE结构在程序执行 fopen等函数时会进行创建，并分配在堆中。我们常定义一个指向FILE结构的指针来接收这个返回值。
+FILE 结构定义在 libio.h 中:
+123456789101112131415161718192021222324252627282930313233343536373839404142struct _IO_FILE &#1...
+        </div>
+        <div class="abstract-post-meta">
+            <!-- date  -->
+            <div class="abstract-date">
+                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2019/09/19</span>
+            </div>
+            <!-- tags  -->
+            
+            <div class= abstract-tags >
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "_IO_2_1_stdout_">_IO_2_1_stdout_</a>
+    
+</div>
+            
+        </div>
+    </article>
+    
+    
+    
+    
+    
+    
+    <article class="index-post">
         <a class="abstract-title" href = "/2019/09/11/护网杯-flower-Writeup/" >
             
                 <span>护网杯 flower Writeup</span>
@@ -647,9 +679,20 @@ malloc_consolidate()函数分析该函数主要有两个功能。
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 3
+        Total : 4
         </div>
         <!-- search  -->
         
@@ -662,6 +705,11 @@ malloc_consolidate()函数分析该函数主要有两个功能。
     
     <div class="archive-year"> 2019 </div>
     <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/19</span><a class="archive-post-title" href= "/2019/09/19/利用-IO-2-1-stdout-泄露信息/" >利用_IO_2_1_stdout_泄露信息</a>
+        </li>
     
     
         <li class="archive-post-item">
@@ -686,6 +734,8 @@ malloc_consolidate()函数分析该函数主要有两个功能。
         <span class="sidebar-tag-name" data-tags="tcache"><span class="iconfont-archer">&#xe606;</span>tcache</span>
     
         <span class="sidebar-tag-name" data-tags="off-by-null"><span class="iconfont-archer">&#xe606;</span>off-by-null</span>
+    
+        <span class="sidebar-tag-name" data-tags="_IO_2_1_stdout_"><span class="iconfont-archer">&#xe606;</span>_IO_2_1_stdout_</span>
     
     </div>
     <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>

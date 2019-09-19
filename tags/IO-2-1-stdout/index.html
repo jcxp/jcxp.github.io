@@ -346,28 +346,26 @@
     
     
     <article class="index-post">
-        <a class="abstract-title" href = "/2019/09/11/护网杯-mergeheap-Writeup/" >
+        <a class="abstract-title" href = "/2019/09/19/利用-IO-2-1-stdout-泄露信息/" >
             
-                <span>护网杯 mergeheap Writeup</span>
+                <span>利用_IO_2_1_stdout_泄露信息</span>
         </a>
         <div class="abstract-content">
-            前言这道题考察的是堆溢出在高版本的libc的利用方式,在高版本的libc中引入了tcache机制
-
- tcache是libc2.26之后引进的一种新机制，类似于fastbin一样的东西，每条链上最多可以有 7 个 chunk，free的时候当tcache满了才放入fastbin，unsorted bin，malloc的时候优先去tcache找到对应大小的chunk.
-
-漏洞分析在merge这个功能中,当分配的堆块占用了下一chunk的pre_size位时，strcpy的时候会将下一chunk的size也复制，再配合strcat会溢出一个字节,merge部分函数代码如下
-123456789...
+            前言在最近的ctf比赛中,出现了好几次无法通过输出泄露libc地址的题目,本文通过两道例题学习一下利用_IO_2_1_stdout_泄露信息.
+FILE 介绍FILE 在 Linux 系统的标准IO库中是用于描述文件的结构，称为文件流。 FILE结构在程序执行 fopen等函数时会进行创建，并分配在堆中。我们常定义一个指向FILE结构的指针来接收这个返回值。
+FILE 结构定义在 libio.h 中:
+123456789101112131415161718192021222324252627282930313233343536373839404142struct _IO_FILE &#1...
         </div>
         <div class="abstract-post-meta">
             <!-- date  -->
             <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2019/09/11</span>
+                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2019/09/19</span>
             </div>
             <!-- tags  -->
             
             <div class= abstract-tags >
     
-        <a class="post-tag" href="javascript:void(0);" data-tags = "tcache">tcache</a>
+        <a class="post-tag" href="javascript:void(0);" data-tags = "_IO_2_1_stdout_">_IO_2_1_stdout_</a>
     
 </div>
             
