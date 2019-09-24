@@ -346,6 +346,37 @@
     
     
     <article class="index-post">
+        <a class="abstract-title" href = "/2019/09/24/通过bytectf学习新的姿势/" >
+            
+                <span>通过bytectf学习新的姿势</span>
+        </a>
+        <div class="abstract-content">
+            前言今天刚好有空,做了一下前段时间的bytectf的pwn,学到了新的知识点,在note_five这道题中通过对global_max_fast进行覆盖修改,从而修改fastbin大小的范围,然后进行后续利用
+源码分析global_max_fast这个全局变量的作用是用来标志fastbin的大小的阈值，小于这个值的堆块会被认为是fastbin，使用fastbin的相应机制进行管理。看下它的定义：
+1234#define set_max_fast(s) \  global_max_fast = (((s) == 0)                           \          ...
+        </div>
+        <div class="abstract-post-meta">
+            <!-- date  -->
+            <div class="abstract-date">
+                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2019/09/24</span>
+            </div>
+            <!-- tags  -->
+            
+            <div class= abstract-tags >
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "global_max_fast">global_max_fast</a>
+    
+</div>
+            
+        </div>
+    </article>
+    
+    
+    
+    
+    
+    
+    <article class="index-post">
         <a class="abstract-title" href = "/2019/09/20/XCTF云安全共测大赛初赛-fkroman-writeup/" >
             
                 <span>XCTF云安全共测大赛初赛 fkroman writeup</span>
@@ -637,9 +668,24 @@ malloc_consolidate()函数分析该函数主要有两个功能。
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 5
+        Total : 6
         </div>
         <!-- search  -->
         
@@ -652,6 +698,11 @@ malloc_consolidate()函数分析该函数主要有两个功能。
     
     <div class="archive-year"> 2019 </div>
     <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/24</span><a class="archive-post-title" href= "/2019/09/24/通过bytectf学习新的姿势/" >通过bytectf学习新的姿势</a>
+        </li>
     
     
         <li class="archive-post-item">
@@ -688,6 +739,8 @@ malloc_consolidate()函数分析该函数主要有两个功能。
         <span class="sidebar-tag-name" data-tags="tcache"><span class="iconfont-archer">&#xe606;</span>tcache</span>
     
         <span class="sidebar-tag-name" data-tags="off-by-null"><span class="iconfont-archer">&#xe606;</span>off-by-null</span>
+    
+        <span class="sidebar-tag-name" data-tags="global_max_fast"><span class="iconfont-archer">&#xe606;</span>global_max_fast</span>
     
     </div>
     <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
