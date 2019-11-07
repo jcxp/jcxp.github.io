@@ -346,6 +346,41 @@
     
     
     <article class="index-post">
+        <a class="abstract-title" href = "/2019/11/07/巅峰极客逆向之flodb分析/" >
+            
+                <span>巅峰极客逆向之flodb分析</span>
+        </a>
+        <div class="abstract-content">
+            前言最近看群里有人在讨论今年的巅峰极客,说有道逆向题考的linux的反调试出的挺好的,借着这道题学习一下linux反调试
+分析
+第一个反调试ptrace函数,代码如下123456789101112 if ( ptrace(0, 0LL, 1LL, 0LL) &gt;= 0 )'''else v6 = 10000000;  do  &#123;    sleep(1u);    --v6;  &#125;  while ( v6 );  exit(-1);&#125;
+
+
+
+ptrace函数的相关介绍可以参考官方介绍ptrace,这道题的ptrace绕过的方法很简单,直接nop相关跳转即可...
+        </div>
+        <div class="abstract-post-meta">
+            <!-- date  -->
+            <div class="abstract-date">
+                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2019/11/07</span>
+            </div>
+            <!-- tags  -->
+            
+            <div class= abstract-tags >
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "Reverse">Reverse</a>
+    
+</div>
+            
+        </div>
+    </article>
+    
+    
+    
+    
+    
+    
+    <article class="index-post">
         <a class="abstract-title" href = "/2019/11/06/cnas能力验证攻防比赛writeup/" >
             
                 <span>cnas能力验证攻防比赛writeup</span>
@@ -732,9 +767,22 @@ malloc_consolidate()函数分析该函数主要有两个功能。
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <div class="total-and-search">
         <div class="total-archive">
-        Total : 7
+        Total : 8
         </div>
         <!-- search  -->
         
@@ -747,6 +795,11 @@ malloc_consolidate()函数分析该函数主要有两个功能。
     
     <div class="archive-year"> 2019 </div>
     <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/07</span><a class="archive-post-title" href= "/2019/11/07/巅峰极客逆向之flodb分析/" >巅峰极客逆向之flodb分析</a>
+        </li>
     
     
         <li class="archive-post-item">
@@ -791,6 +844,8 @@ malloc_consolidate()函数分析该函数主要有两个功能。
         <span class="sidebar-tag-name" data-tags="_IO_2_1_stdout_"><span class="iconfont-archer">&#xe606;</span>_IO_2_1_stdout_</span>
     
         <span class="sidebar-tag-name" data-tags="tcache"><span class="iconfont-archer">&#xe606;</span>tcache</span>
+    
+        <span class="sidebar-tag-name" data-tags="Reverse"><span class="iconfont-archer">&#xe606;</span>Reverse</span>
     
         <span class="sidebar-tag-name" data-tags="off-by-null"><span class="iconfont-archer">&#xe606;</span>off-by-null</span>
     

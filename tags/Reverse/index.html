@@ -346,183 +346,29 @@
     
     
     <article class="index-post">
-        <a class="abstract-title" href = "/2019/09/24/通过bytectf学习新的姿势/" >
+        <a class="abstract-title" href = "/2019/11/07/巅峰极客逆向之flodb分析/" >
             
-                <span>通过bytectf学习新的姿势</span>
+                <span>巅峰极客逆向之flodb分析</span>
         </a>
         <div class="abstract-content">
-            前言今天刚好有空,做了一下前段时间的bytectf的pwn,学到了新的知识点,在note_five这道题中通过对global_max_fast进行覆盖修改,从而修改fastbin大小的范围,然后进行后续利用
-源码分析global_max_fast这个全局变量的作用是用来标志fastbin的大小的阈值，小于这个值的堆块会被认为是fastbin，使用fastbin的相应机制进行管理。看下它的定义：
-1234#define set_max_fast(s) \  global_max_fast = (((s) == 0)                           \          ...
+            前言最近看群里有人在讨论今年的巅峰极客,说有道逆向题考的linux的反调试出的挺好的,借着这道题学习一下linux反调试
+分析
+第一个反调试ptrace函数,代码如下123456789101112 if ( ptrace(0, 0LL, 1LL, 0LL) &gt;= 0 )'''else v6 = 10000000;  do  &#123;    sleep(1u);    --v6;  &#125;  while ( v6 );  exit(-1);&#125;
+
+
+
+ptrace函数的相关介绍可以参考官方介绍ptrace,这道题的ptrace绕过的方法很简单,直接nop相关跳转即可...
         </div>
         <div class="abstract-post-meta">
             <!-- date  -->
             <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2019/09/24</span>
+                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2019/11/07</span>
             </div>
             <!-- tags  -->
             
             <div class= abstract-tags >
     
-        <a class="post-tag" href="javascript:void(0);" data-tags = "global_max_fast">global_max_fast</a>
-    
-</div>
-            
-        </div>
-    </article>
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href = "/2019/09/20/XCTF云安全共测大赛初赛-fkroman-writeup/" >
-            
-                <span>XCTF云安全共测大赛初赛 fkroman writeup</span>
-        </a>
-        <div class="abstract-content">
-            前言这道题又是UAF+_IO_2_1_stdout_的利用,关于_IO_2_1_stdout_可以参考这篇文章
-漏洞分析这道题在free时存在明显的UAF漏洞,另外这道菜单堆的show部分只输出固定的字符串No way  
-1234567891011int __fastcall free_(unsigned int a1)&#123;  int result; // eax  if ( a1 &lt;= 0xFF )  &#123;    free(qword_4060[a1]);    result = puts("Done!\n");                   // uaf...
-        </div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2019/09/20</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class= abstract-tags >
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags = "_IO_2_1_stdout_">_IO_2_1_stdout_</a>
-    
-</div>
-            
-        </div>
-    </article>
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href = "/2019/09/19/利用-IO-2-1-stdout-泄露信息/" >
-            
-                <span>利用_IO_2_1_stdout_泄露信息</span>
-        </a>
-        <div class="abstract-content">
-            前言在最近的ctf比赛中,出现了好几次无法通过输出泄露libc地址的题目,本文通过两道例题学习一下利用_IO_2_1_stdout_泄露信息.
-FILE 介绍FILE 在 Linux 系统的标准IO库中是用于描述文件的结构，称为文件流。 FILE结构在程序执行 fopen等函数时会进行创建，并分配在堆中。我们常定义一个指向FILE结构的指针来接收这个返回值。
-FILE 结构定义在 libio.h 中:
-123456789101112131415161718192021222324252627282930313233343536373839404142struct _IO_FILE &#1...
-        </div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2019/09/19</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class= abstract-tags >
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags = "_IO_2_1_stdout_">_IO_2_1_stdout_</a>
-    
-</div>
-            
-        </div>
-    </article>
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href = "/2019/09/11/护网杯-flower-Writeup/" >
-            
-                <span>护网杯 flower Writeup</span>
-        </a>
-        <div class="abstract-content">
-            前言这道题存在off-by-null漏洞,但是只能分配fastbin,可以通过触发malloc_consolidate()进行overlapping,然后通过劫持topchunk来getshell
-malloc_consolidate()函数分析该函数主要有两个功能。  
-
-检查fastbin是否初始化，如果未初始化，则进行初始化。
-如果fastbin初始化，则按照一定的顺序合并fastbin中的chunk放入unsorted bin中。
-
-12345678910111213141516171819202122232425262728293031323334353637383940414...
-        </div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2019/09/11</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class= abstract-tags >
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags = "off-by-null">off-by-null</a>
-    
-</div>
-            
-        </div>
-    </article>
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href = "/2019/09/11/护网杯-silentheap-writeup/" >
-            
-                <span>护网杯 silentheap writeup</span>
-        </a>
-        <div class="abstract-content">
-            漏洞分析
-在dele函数中,第二次循环并没有循环到9,如果dele时输入9,会直接free掉ptr[9],此时dword_804AA60[i]=0.
-
-1234567891011121314151617181920212223242526272829int dele()&#123;  int result; // eax  int v1; // [esp+8h] [ebp-10h]  signed int i; // [esp+Ch] [ebp-Ch]  result = sub_8048671();  v1 = result;  if ( result &gt;= 0 &amp;&am...
-        </div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2019/09/11</span>
-            </div>
-            <!-- tags  -->
-            
-        </div>
-    </article>
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href = "/2019/09/11/护网杯-mergeheap-Writeup/" >
-            
-                <span>护网杯 mergeheap Writeup</span>
-        </a>
-        <div class="abstract-content">
-            前言这道题考察的是堆溢出在高版本的libc的利用方式,在高版本的libc中引入了tcache机制
-
- tcache是libc2.26之后引进的一种新机制，类似于fastbin一样的东西，每条链上最多可以有 7 个 chunk，free的时候当tcache满了才放入fastbin，unsorted bin，malloc的时候优先去tcache找到对应大小的chunk.
-
-漏洞分析在merge这个功能中,当分配的堆块占用了下一chunk的pre_size位时，strcpy的时候会将下一chunk的size也复制，再配合strcat会溢出一个字节,merge部分函数代码如下
-123456789...
-        </div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2019/09/11</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class= abstract-tags >
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags = "tcache">tcache</a>
+        <a class="post-tag" href="javascript:void(0);" data-tags = "Reverse">Reverse</a>
     
 </div>
             

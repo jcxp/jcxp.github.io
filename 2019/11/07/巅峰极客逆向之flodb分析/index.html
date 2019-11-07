@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+    <!-- title -->
+
+
+
+
+<!-- keywords -->
+
+
+
+
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="jcxp">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="jcxp">
+    
+    <meta name="keywords" content="jcxp,hexo-theme,jcxp-blog">
+    
+    <meta name="description" content>
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>巅峰极客逆向之flodb分析 · Jcxp&#39;s blog</title>
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+
+</style>
+
+    <link rel="preload" href="/css/style.css?v=20180824" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="stylesheet" href="/css/mobile.css?v=20180824" media="(max-width: 980px)">
+    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+(function( w ){
+	"use strict";
+	// rel=preload support test
+	if( !w.loadCSS ){
+		w.loadCSS = function(){};
+	}
+	// define on the loadCSS obj
+	var rp = loadCSS.relpreload = {};
+	// rel=preload feature support test
+	// runs once and returns a function for compat purposes
+	rp.support = (function(){
+		var ret;
+		try {
+			ret = w.document.createElement( "link" ).relList.supports( "preload" );
+		} catch (e) {
+			ret = false;
+		}
+		return function(){
+			return ret;
+		};
+	})();
+
+	// if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+	// then change that media back to its intended value on load
+	rp.bindMediaToggle = function( link ){
+		// remember existing media attr for ultimate state, or default to 'all'
+		var finalMedia = link.media || "all";
+
+		function enableStylesheet(){
+			link.media = finalMedia;
+		}
+
+		// bind load handlers to enable media
+		if( link.addEventListener ){
+			link.addEventListener( "load", enableStylesheet );
+		} else if( link.attachEvent ){
+			link.attachEvent( "onload", enableStylesheet );
+		}
+
+		// Set rel and non-applicable media type to start an async request
+		// note: timeout allows this to happen async to let rendering continue in IE
+		setTimeout(function(){
+			link.rel = "stylesheet";
+			link.media = "only x";
+		});
+		// also enable media after 3 seconds,
+		// which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+		setTimeout( enableStylesheet, 3000 );
+	};
+
+	// loop through link elements in DOM
+	rp.poly = function(){
+		// double check this to prevent external calls from running
+		if( rp.support() ){
+			return;
+		}
+		var links = w.document.getElementsByTagName( "link" );
+		for( var i = 0; i < links.length; i++ ){
+			var link = links[ i ];
+			// qualify links to those with rel=preload and as=style attrs
+			if( link.rel === "preload" && link.getAttribute( "as" ) === "style" && !link.getAttribute( "data-loadcss" ) ){
+				// prevent rerunning on link
+				link.setAttribute( "data-loadcss", true );
+				// bind listeners to toggle media back
+				rp.bindMediaToggle( link );
+			}
+		}
+	};
+
+	// if unsupported, run the polyfill
+	if( !rp.support() ){
+		// run once at least
+		rp.poly();
+
+		// rerun poly on an interval until onload
+		var run = w.setInterval( rp.poly, 500 );
+		if( w.addEventListener ){
+			w.addEventListener( "load", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		} else if( w.attachEvent ){
+			w.attachEvent( "onload", function(){
+				rp.poly();
+				w.clearInterval( run );
+			} );
+		}
+	}
+
+
+	// commonjs
+	if( typeof exports !== "undefined" ){
+		exports.loadCSS = loadCSS;
+	}
+	else {
+		w.loadCSS = loadCSS;
+	}
+}( typeof global !== "undefined" ? global : this ) );
+</script>
+
+    <link rel="icon" href="/assets/favicon.ico">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js" as="script">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/scripts/main.js" as="script">
+    <link rel="preload" as="font" href="/font/Oswald-Regular.ttf" crossorigin>
+    <link rel="preload" as="font" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" crossorigin>
+    
+    <!-- fancybox -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" defer></script>
+    <!-- 百度统计  -->
+    
+    <!-- 谷歌统计  -->
+    
+</head>
+
+    
+        <body class="post-body">
+    
+    
+<header class="header">
+
+    <div class="read-progress"></div>
+    <div class="header-sidebar-menu">&#xe775;</div>
+    <!-- post页的toggle banner  -->
+    
+    <div class="banner">
+            <div class="blog-title">
+                <a href="/" >Jcxp&#39;s blog</a>
+            </div>
+            <div class="post-title">
+                <a href="#" class="post-name">巅峰极客逆向之flodb分析</a>
+            </div>
+    </div>
+    
+    <a class="home-link" href=/>Jcxp's blog</a>
+</header>
+    <div class="wrapper">
+        <div class="site-intro" style="
+
+
+
+
+
+
+
+height:50vh;
+">
+    
+    <!-- 主页  -->
+    
+    
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post-bg.jpg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+            巅峰极客逆向之flodb分析
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+            
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                    <div class= post-intro-tags >
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags = "Reverse">Reverse</a>
+    
+</div>
+                
+                
+                    <div class="post-intro-read">
+                        <span>Word count: <span class="post-count word-count">1.3k</span>Reading time: <span class="post-count reading-time">6 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <span class="post-intro-calander iconfont-archer">&#xe676;</span>
+                    <span class="post-intro-time">2019/11/07</span>
+                    
+                    <span id="busuanzi_container_page_pv" class="busuanzi-pv">
+                        <span class="iconfont-archer">&#xe602;</span>
+                        <span id="busuanzi_value_page_pv"></span>
+                    </span>
+                    
+                    <span class="shareWrapper">
+                        <span class="iconfont-archer shareIcon">&#xe71d;</span>
+                        <span class="shareText">Share</span>
+                        <ul class="shareList">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+        <script>
+ 
+  // get user agent
+  var browser = {
+    versions: function () {
+      var u = window.navigator.userAgent;
+      return {
+        userAgent: u,
+        trident: u.indexOf('Trident') > -1, //IE内核
+        presto: u.indexOf('Presto') > -1, //opera内核
+        webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+        gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+        mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+        ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+        android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+        iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+        iPad: u.indexOf('iPad') > -1, //是否为iPad
+        webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+        weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+        uc: u.indexOf('UCBrowser') > -1 //是否为android下的UC浏览器
+      };
+    }()
+  }
+  console.log("userAgent:" + browser.versions.userAgent);
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded');
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document.getElementsByClassName('intro-title')[0].classList.add('intro-fade-in');
+      document.getElementsByClassName('intro-subtitle')[0].classList.add('intro-fade-in');
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in');
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb(){
+    if (browser.versions.uc) {
+      console.log("UCBrowser");
+      fontLoaded();
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular']
+        },
+        loading: function () {  //所有字体开始加载
+          // console.log('loading');
+        },
+        active: function () {  //所有字体已渲染
+          fontLoaded();
+        },
+        inactive: function () { //字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout');
+          fontLoaded();
+        },
+        timeout: 5000 // Set the timeout to two seconds
+      });
+    }
+  }
+
+  function asyncErr(){
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document, t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0];
+    o.src = u;
+    if (cb) { o.addEventListener('load', function (e) { cb(null, e); }, false); }
+    if (err) { o.addEventListener('error', function (e) { err(null, e); }, false); }
+    s.parentNode.insertBefore(o, s);
+  }
+
+  var asyncLoadWithFallBack = function(arr, success, reject) {
+      var currReject = function(){
+        reject()
+        arr.shift()
+        if(arr.length)
+          async(arr[0], success, currReject)
+        }
+
+      async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack([
+    "https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js", 
+    "https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js",
+    "/lib/webfontloader.min.js"
+  ], asyncCb, asyncErr)
+</script>        
+        <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+        <div class="container container-unloaded">
+            <main class="main post-page">
+    <article class="article-entry">
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>最近看群里有人在讨论今年的巅峰极客,说有道逆向题考的linux的反调试出的挺好的,借着这道题学习一下linux反调试</p>
+<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><ol>
+<li>第一个反调试<code>ptrace</code>函数,代码如下<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"> <span class="keyword">if</span> ( ptrace(<span class="number">0</span>, <span class="number">0L</span>L, <span class="number">1L</span>L, <span class="number">0L</span>L) &gt;= <span class="number">0</span> )</span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="keyword">else</span></span><br><span class="line"> v6 = <span class="number">10000000</span>;</span><br><span class="line">  <span class="keyword">do</span></span><br><span class="line">  &#123;</span><br><span class="line">    sleep(<span class="number">1u</span>);</span><br><span class="line">    --v6;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">while</span> ( v6 );</span><br><span class="line">  <span class="built_in">exit</span>(<span class="number">-1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+<p><code>ptrace</code>函数的相关介绍可以参考官方介绍<a href="http://man7.org/linux/man-pages/man2/ptrace.2.html" target="_blank" rel="noopener">ptrace</a>,这道题的<code>ptrace</code>绕过的方法很简单,直接<code>nop</code>相关跳转即可:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 修改前</span></span><br><span class="line">.text:<span class="number">000000000040096</span>A                 call    _ptrace</span><br><span class="line">.text:<span class="number">000000000040096F</span>                 test    rax, rax</span><br><span class="line">.text:<span class="number">0000000000400972</span>                 js      loc_400C6C</span><br><span class="line"><span class="comment">//修改后</span></span><br><span class="line">.text:<span class="number">000000000040096</span>A                 call    _ptrace</span><br><span class="line">.text:<span class="number">000000000040096F</span>                 test    rax, rax</span><br><span class="line">.text:<span class="number">0000000000400972</span>                 nop</span><br><span class="line">.text:<span class="number">0000000000400973</span>                 nop</span><br><span class="line">.text:<span class="number">0000000000400974</span>                 nop</span><br><span class="line">.text:<span class="number">0000000000400975</span>                 nop</span><br><span class="line">.text:<span class="number">0000000000400976</span>                 nop</span><br><span class="line">.text:<span class="number">0000000000400977</span>                 nop</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>第二个反调试是监控程序执行的时间:</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"> v4 = time(<span class="number">0L</span>L);</span><br><span class="line">v5 = (<span class="keyword">unsigned</span> __int64)time(<span class="number">0L</span>L) - v4;</span><br><span class="line"><span class="keyword">if</span> ( v5 &lt;= <span class="number">1</span> )</span><br><span class="line">&#123;</span><br><span class="line">  func3(&amp;v10, <span class="number">2L</span>L, <span class="number">7L</span>L, <span class="number">14L</span>L);</span><br><span class="line">  v7 = <span class="number">4196782L</span>L;</span><br><span class="line">  JUMPOUT(__CS__, v8 + <span class="number">10</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>同样<code>nop</code>掉即可</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//修改前</span></span><br><span class="line">.text:<span class="number">0000000000400981</span>                 sub     edi, r12d       ; status</span><br><span class="line">.text:<span class="number">0000000000400984</span>                 cmp     edi, <span class="number">1</span></span><br><span class="line">.text:<span class="number">0000000000400987</span>                 jg      loc_400C51</span><br><span class="line"></span><br><span class="line"><span class="comment">//修改后</span></span><br><span class="line">.text:<span class="number">0000000000400981</span>                 sub     edi, r12d       ; status</span><br><span class="line">.text:<span class="number">0000000000400984</span>                 cmp     edi, <span class="number">1</span></span><br><span class="line">.text:<span class="number">0000000000400987</span>                 nop</span><br><span class="line">.text:<span class="number">0000000000400988</span>                 nop</span><br><span class="line">.text:<span class="number">0000000000400989</span>                 nop</span><br><span class="line">.text:<span class="number">000000000040098</span>A                 nop</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>后面的反调试可以通过使用ida把如下的数据转化为代码(程序有部分花指令,导ida初始化会反编译出错)</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">.text:<span class="number">00000000004009</span>C4                 dd <span class="number">48</span>EBEBEBh</span><br><span class="line">.text:<span class="number">00000000004009</span>C8                 dq <span class="number">11B</span>908247C8Dh, <span class="number">4B</span>E00000006BA00h, <span class="number">440E8000000</span>h, <span class="number">0</span>EBB866C8FFC0FFEBh</span><br><span class="line">.text:<span class="number">00000000004009</span>C8                 dq <span class="number">0</span>EB90EBFA74C03105h, <span class="number">0F</span>FC0FFEBC8FFC0FFh, <span class="number">8</span>D48C8FFC0FFEBC8h</span><br><span class="line">.text:<span class="number">00000000004009</span>C8                 dq <span class="number">0</span>AB924247Ch, <span class="number">3B</span>E00000005BAh, <span class="number">0E800000409</span>E80000h, <span class="number">24B</span>48D48FFFFFE04h</span><br><span class="line">.text:<span class="number">00000000004009</span>C8                 dq <span class="number">75E8</span>C789000000A0h, <span class="number">0F</span>C589C085000004h, <span class="number">5</span>C8D480000020B85h</span><br><span class="line">.text:<span class="number">00000000004009</span>C8                 dq <span class="number">0B</span>A0000000FB92C24h, <span class="number">6B</span>E00000009h, <span class="number">3</span>CFE8E7894800h, <span class="number">6B</span>A00000008B900h</span><br><span class="line">.text:<span class="number">00000000004009</span>C8                 dq <span class="number">3B</span>E000000h, <span class="number">3B</span>8E8DF8948h, <span class="number">89F</span>FFFFD71E8FF31h, <span class="number">0F</span>02FF83E72944C7h</span><br><span class="line">.text:<span class="number">00000000004009</span>C8                 dq <span class="number">0</span>EB9000001D48Fh, <span class="number">0B</span>E00000005BA0000h, <span class="number">0E8</span>EF894C00000001h</span><br><span class="line">.text:<span class="number">00000000004009</span>C8                 dq <span class="number">0F</span>FFCF7E80000038Ch, <span class="number">0F</span>FFFFD10E8C789FFh, <span class="number">0F</span>FFFFD78E8C58941h</span><br><span class="line">.text:<span class="number">00000000004009</span>C8                 dq <span class="number">1</span>AA850FC53941h, <span class="number">13B</span>9F63100h, <span class="number">0E7894800000002</span>BAh, <span class="number">356E840246</span>C8D4Ch</span><br><span class="line">.text:<span class="number">00000000004009</span>C8                 dq <span class="number">0</span>C03105EBB8660000h, <span class="number">0F</span>FC0FFEB90EBFA74h, <span class="number">0</span>C03105EBB86690C8h</span><br><span class="line">.text:<span class="number">00000000004009</span>C8                 dq <span class="number">0</span>C8FFC0FFEBEBFA74h, <span class="number">10B</span>90C247C8D48h, <span class="number">0B</span>E00000005BA0000h</span><br><span class="line">.text:<span class="number">00000000004009</span>C8                 dq <span class="number">31F</span>E800000003h, <span class="number">4B</span>93C247C8D4800h, <span class="number">3B</span>A000000h, <span class="number">306E800000001</span>BEh</span><br><span class="line">.text:<span class="number">00000000004009</span>C8                 dq <span class="number">0</span>C8FFC0FFEB900000h, <span class="number">0</span>C03105EBB8669090h, <span class="number">5</span>EBB86690EBFA74h</span><br><span class="line">.text:<span class="number">00000000004009</span>C8                 dq <span class="number">909090</span>EBFA74C031h, <span class="number">0B</span>B920247C8D48h, <span class="number">0B</span>E00000006BA0000h</span><br><span class="line">.text:<span class="number">00000000004009</span>C8                 dq <span class="number">2</span>CFE800000003h, <span class="number">13B</span>9F63100h, <span class="number">0E7894800000007</span>BAh, <span class="number">0E89090000002</span>BBE8h</span><br><span class="line">.text:<span class="number">00000000004009</span>C8                 dq <span class="number">0</span>C083485800000000h, <span class="number">0</span>EBEBEBEBEBE0FF0Ch, <span class="number">74</span>C03105EBB86690h</span><br><span class="line">.text:<span class="number">00000000004009</span>C8                 dq <span class="number">3B</span>9F63190EBFAh, <span class="number">4</span>C00000002BA0000h, <span class="number">4800000289E8</span>EF89h</span><br><span class="line">.text:<span class="number">00000000004009</span>C8                 dq <span class="number">9B</span>9F63128247C8Dh, <span class="number">2B</span>A000000h, <span class="number">0E8</span>FF3100000273E8h, <span class="number">2944</span>C789FFFFFC2Ch</span><br><span class="line">.text:<span class="number">00000000004009</span>C8                 dq <span class="number">8F</span>8F0F03FF83E7h, <span class="number">8B</span>9DF89480000h, <span class="number">0B</span>E00000003BA0000h</span><br><span class="line">.text:<span class="number">00000000004009</span>C8                 dq <span class="number">45E8</span>DB3100000001h, <span class="number">3B</span>9000002h, <span class="number">4</span>CF63100000002BAh, <span class="number">0B</span>800000231E8EF89h</span><br><span class="line">.text:<span class="number">00000000004009</span>C8                 dq <span class="number">2E660</span>EEB00000053h, <span class="number">841F</span>0Fh, <span class="number">759</span>C043B509C448Bh, <span class="number">0F</span>B834801C383483Ch</span><br><span class="line">.text:<span class="number">00000000004009</span>C8                 dq <span class="number">400F</span>FDBFED7513h, <span class="number">948B</span>48FFFFFB63E8h, <span class="number">334864000004</span>A824h</span><br><span class="line">.text:<span class="number">00000000004009</span>C8                 dq <span class="number">0E889000000282514</span>h, <span class="number">4B</span>8C481482475h, <span class="number">0</span>C35D415C415D5B00h</span><br><span class="line">.text:<span class="number">00000000004009</span>C8                 dq <span class="number">0F</span>F2BFD8EBFFCD83h, <span class="number">89F</span>FFFFB31E80040h</span><br><span class="line">.text:<span class="number">0000000000400</span>C50                 db <span class="number">0</span>DFh</span><br></pre></td></tr></table></figure>
+
+<p>同样是监控代码执行的反调试,直接<code>patch</code>  </p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//修改前</span></span><br><span class="line">.text:<span class="number">0000000000400</span>A6A                 call    _time</span><br><span class="line">.text:<span class="number">0000000000400</span>A6F                 mov     edi, eax</span><br><span class="line">.text:<span class="number">0000000000400</span>A71                 sub     edi, r12d</span><br><span class="line">.text:<span class="number">0000000000400</span>A74                 cmp     edi, <span class="number">2</span></span><br><span class="line">.text:<span class="number">0000000000400</span>A77                 jg      loc_400C51</span><br><span class="line"><span class="comment">//修改后</span></span><br><span class="line">text:<span class="number">0000000000400</span>A6A                 call    _time</span><br><span class="line">.text:<span class="number">0000000000400</span>A6F                 mov     edi, eax</span><br><span class="line">.text:<span class="number">0000000000400</span>A71                 sub     edi, r12d       ; status</span><br><span class="line">.text:<span class="number">0000000000400</span>A74                 cmp     edi, <span class="number">2</span></span><br><span class="line">.text:<span class="number">0000000000400</span>A77                 nop</span><br><span class="line">.text:<span class="number">0000000000400</span>A78                 nop</span><br><span class="line">.text:<span class="number">0000000000400</span>A79                 nop</span><br><span class="line">.text:<span class="number">0000000000400</span>A7A                 nop</span><br><span class="line">.text:<span class="number">0000000000400</span>A7B                 nop</span><br><span class="line">.text:<span class="number">0000000000400</span>A7C                 nop</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li><p>第四个反调试是通过<code>getppid</code>和<code>getsid</code>实现的</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//修改前</span></span><br><span class="line">.text:<span class="number">0000000000400</span>A94                 call    _getpid</span><br><span class="line">.text:<span class="number">0000000000400</span>A99                 mov     edi, eax        ; pid</span><br><span class="line">.text:<span class="number">0000000000400</span>A9B                 call    _getsid</span><br><span class="line">.text:<span class="number">0000000000400</span>AA0                 mov     r13d, eax</span><br><span class="line">.text:<span class="number">0000000000400</span>AA3                 call    _getppid</span><br><span class="line">.text:<span class="number">0000000000400</span>AA8                 cmp     r13d, eax</span><br><span class="line">.text:<span class="number">0000000000400</span>AAB                 jnz     loc_400C5B</span><br><span class="line"></span><br><span class="line"><span class="comment">//修改后</span></span><br><span class="line">.text:<span class="number">0000000000400</span>A94                 call    _getpid</span><br><span class="line">.text:<span class="number">0000000000400</span>A99                 mov     edi, eax        ; pid</span><br><span class="line">.text:<span class="number">0000000000400</span>A9B                 call    _getsid</span><br><span class="line">.text:<span class="number">0000000000400</span>AA0                 mov     r13d, eax</span><br><span class="line">.text:<span class="number">0000000000400</span>AA3                 call    _getppid</span><br><span class="line">.text:<span class="number">0000000000400</span>AA8                 cmp     r13d, eax</span><br><span class="line">.text:<span class="number">0000000000400</span>AAB                 nop</span><br><span class="line">.text:<span class="number">0000000000400</span>AAC                 nop</span><br><span class="line">.text:<span class="number">0000000000400</span>AAD                 nop</span><br><span class="line">.text:<span class="number">0000000000400</span>AAE                 nop</span><br><span class="line">.text:<span class="number">0000000000400</span>AAF                 nop</span><br><span class="line">.text:<span class="number">0000000000400</span>AB0                 nop</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>最后一个反调试同样是通过监控代码执行时间实现的</p>
+</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//修改前</span></span><br><span class="line">.text:<span class="number">0000000000400B</span>AF                 call    _time</span><br><span class="line">.text:<span class="number">0000000000400B</span>B4                 mov     edi, eax</span><br><span class="line">.text:<span class="number">0000000000400B</span>B6                 sub     edi, r12d</span><br><span class="line">.text:<span class="number">0000000000400B</span>B9                 cmp     edi, <span class="number">3</span></span><br><span class="line"><span class="comment">//修改后</span></span><br><span class="line">.text:<span class="number">0000000000400B</span>AF                 call    _time</span><br><span class="line">.text:<span class="number">0000000000400B</span>B4                 mov     edi, eax</span><br><span class="line">.text:<span class="number">0000000000400B</span>B6                 sub     edi, r12d</span><br><span class="line">.text:<span class="number">0000000000400B</span>B9                 cmp     edi, <span class="number">3</span></span><br><span class="line">.text:<span class="number">0000000000400B</span>BC                 nop</span><br><span class="line">.text:<span class="number">0000000000400B</span>BD                 nop</span><br><span class="line">.text:<span class="number">0000000000400B</span>BE                 nop</span><br><span class="line">.text:<span class="number">0000000000400B</span>BF                 nop</span><br><span class="line">.text:<span class="number">0000000000400B</span>C0                 nop</span><br><span class="line">.text:<span class="number">0000000000400B</span>C1                 nop</span><br></pre></td></tr></table></figure>
+
+<p>有几段花指令,特征就是:</p>
+<ul>
+<li><code>call $+5</code></li>
+<li><code>dec eax；inc eax</code></li>
+<li><code>jmp short near</code></li>
+</ul>
+<p>比如第一段<code>call $+5</code>,如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">.text:<span class="number">00000000004009</span>A9                 call    $+<span class="number">5</span></span><br><span class="line">.text:<span class="number">00000000004009</span>AE                 pop     rax</span><br><span class="line">.text:<span class="number">00000000004009</span>AF</span><br><span class="line">.text:<span class="number">00000000004009</span>AF loc_4009AF:                             ; CODE XREF: main+<span class="number">164</span>↓j</span><br><span class="line">.text:<span class="number">00000000004009</span>AF                 add     rax, <span class="number">0</span>Ah</span><br><span class="line">.text:<span class="number">00000000004009B</span>3                 jmp     rax</span><br><span class="line">.text:<span class="number">00000000004009B</span>3 ; ---------------------------------------------------------------------------</span><br><span class="line">.text:<span class="number">00000000004009B</span>5                 db <span class="number">3</span> dup(<span class="number">0</span>EBh)</span><br><span class="line">.text:<span class="number">00000000004009B</span>8 ; ---------------------------------------------------------------------------</span><br><span class="line">.text:<span class="number">00000000004009B</span>8                 call    $+<span class="number">5</span></span><br><span class="line">.text:<span class="number">00000000004009B</span>D                 pop     rbx</span><br><span class="line">.text:<span class="number">00000000004009B</span>E                 add     rbx, <span class="number">0</span>Ah</span><br><span class="line">.text:<span class="number">00000000004009</span>C2                 jmp     rbx</span><br><span class="line">.text:<span class="number">00000000004009</span>C4 ; ---------------------------------------------------------------------------</span><br><span class="line">.text:<span class="number">00000000004009</span>C4                 jmp     <span class="keyword">short</span> near ptr loc_4009AF+<span class="number">2</span></span><br><span class="line">.text:<span class="number">00000000004009</span>C6 ; ---------------------------------------------------------------------------</span><br><span class="line">.text:<span class="number">00000000004009</span>C6                 jmp     <span class="keyword">short</span> near ptr loc_400A0D+<span class="number">3</span></span><br><span class="line">.text:<span class="number">00000000004009</span>C8 ; ---------------------------------------------------------------------------</span><br><span class="line">.text:<span class="number">000000</span></span><br></pre></td></tr></table></figure>
+
+<p>可以通过分析或者调试定位到跳转地址,直接jmp就好</p>
+<h2 id="调试"><a href="#调试" class="headerlink" title="调试"></a>调试</h2><p>处理了反调试之后,gdb可以直接调试,字符处理的主要逻辑通过<code>func3</code>,<code>func2</code>,<code>func1</code>,三个函数实现,过程相对复杂,不过通过对<code>0x400C04</code>下断点,可以清晰的获得我们输入的数据加密后的结果,以及要比较的对象</p>
+<p>如下所示,我们知道字符的长度为19</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">   <span class="number">0x400bf4</span> &lt;main+<span class="number">916</span>&gt;:	jmp    <span class="number">0x400c04</span> &lt;main+<span class="number">932</span>&gt;</span><br><span class="line">   <span class="number">0x400bf6</span> &lt;main+<span class="number">918</span>&gt;:	nop    WORD PTR <span class="symbol">cs:</span>[rax+rax*<span class="number">1</span>+<span class="number">0x0</span>]</span><br><span class="line">   <span class="number">0x400c00</span> &lt;main+<span class="number">928</span>&gt;:	mov    eax,DWORD PTR [rsp+rbx*<span class="number">4</span>+<span class="number">0x50</span>]/<span class="regexp">/要比较的字符</span></span><br><span class="line"><span class="regexp">=&gt; 0x400c04 &lt;main+932&gt;:	cmp    eax,DWORD PTR [rsp+rbx*4]/</span><span class="regexp">/用户处理后的字符串</span></span><br><span class="line"><span class="regexp">   0x400c07 &lt;main+935&gt;:	jne    0x400c45 &lt;main+997&gt;</span></span><br><span class="line"><span class="regexp">   0x400c09 &lt;main+937&gt;:	add    rbx,0x1</span></span><br><span class="line"><span class="regexp">   0x400c0d &lt;main+941&gt;:	cmp    rbx,0x13</span></span><br><span class="line"><span class="regexp">   0x400c11 &lt;main+945&gt;:	jne    0x400c00 &lt;main+928&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>用来比较的字符串如下</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">gdb-peda$ x /<span class="number">20</span>wx $rsp+<span class="number">0x50</span></span><br><span class="line"><span class="number">0x7fffffffdfb0</span>:	<span class="number">0x00000053</span>	<span class="number">0x00000040</span>	<span class="number">0x00000079</span>	<span class="number">0x00000052</span></span><br><span class="line"><span class="number">0x7fffffffdfc0</span>:	<span class="number">0x00000074</span>	<span class="number">0x00000066</span>	<span class="number">0x00000054</span>	<span class="number">0x0000006c</span></span><br><span class="line"><span class="number">0x7fffffffdfd0</span>:	<span class="number">0x00000030</span>	<span class="number">0x0000002b</span>	<span class="number">0x00000061</span>	<span class="number">0x00000067</span></span><br><span class="line"><span class="number">0x7fffffffdfe0</span>:	<span class="number">0x0000002d</span>	<span class="number">0x0000004c</span>	<span class="number">0x0000005f</span>	<span class="number">0x00000033</span></span><br><span class="line"><span class="number">0x7fffffffdff0</span>:	<span class="number">0x0000004d</span>	<span class="number">0x0000007d</span>	<span class="number">0x0000007b</span>	<span class="number">0x00007fff</span></span><br><span class="line">/<span class="regexp">/S@yRtfTl0+ag-L_3M&#125;&#123;</span></span><br></pre></td></tr></table></figure>
+
+<p>我们输入<code>abcdefghijklmnopqrs</code>生成的数据如下</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">gdb-peda$ x /<span class="number">20</span>wx <span class="number">0x7fffffffdf60</span></span><br><span class="line"><span class="number">0x7fffffffdf60</span>:	<span class="number">0x00000069</span>	<span class="number">0x00000070</span>	<span class="number">0x00000067</span>	<span class="number">0x0000006d</span></span><br><span class="line"><span class="number">0x7fffffffdf70</span>:	<span class="number">0x0000006a</span>	<span class="number">0x00000061</span>	<span class="number">0x0000006f</span>	<span class="number">0x00000062</span></span><br><span class="line"><span class="number">0x7fffffffdf80</span>:	<span class="number">0x0000006e</span>	<span class="number">0x00000071</span>	<span class="number">0x00000063</span>	<span class="number">0x00000064</span></span><br><span class="line"><span class="number">0x7fffffffdf90</span>:	<span class="number">0x00000068</span>	<span class="number">0x0000006b</span>	<span class="number">0x0000006c</span>	<span class="number">0x00000072</span></span><br><span class="line"><span class="number">0x7fffffffdfa0</span>:	<span class="number">0x00000066</span>	<span class="number">0x00000073</span>	<span class="number">0x00000065</span>	<span class="number">0x00007fff</span></span><br><span class="line">/<span class="regexp">/ipgmjaobnqcdhklrfse</span></span><br></pre></td></tr></table></figure>
+
+<p>通过分析输入的数据和输出的数据,能够猜到<code>func3</code>,<code>func2</code>,<code>func1</code>三个函数可能是对输入做了某种移位处理,编写代码进行测试</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">s=[<span class="number">0x69</span>,<span class="number">0x70</span>,<span class="number">0x67</span>,<span class="number">0x6d</span>,<span class="number">0x6a</span>,<span class="number">0x61</span>,<span class="number">0x6f</span>,<span class="number">0x62</span>,<span class="number">0x6e</span>,<span class="number">0x71</span>,<span class="number">0x63</span>,<span class="number">0x64</span>,<span class="number">0x68</span>,<span class="number">0x6b</span>,<span class="number">0x6c</span>,<span class="number">0x72</span>,<span class="number">0x66</span>,<span class="number">0x73</span>,<span class="number">0x65</span>]</span><br><span class="line"><span class="keyword">print</span> len(s)</span><br><span class="line"><span class="keyword">print</span> <span class="string">''</span>.join(chr(i) <span class="keyword">for</span> i <span class="keyword">in</span> s)</span><br><span class="line"></span><br><span class="line">shuru=<span class="string">'abcdefghijklmnopqrs'</span></span><br><span class="line"></span><br><span class="line">cipher=[<span class="number">0x53</span>,<span class="number">0x40</span>,<span class="number">0x79</span>,<span class="number">0x52</span>,<span class="number">0x74</span>,<span class="number">0x66</span>,<span class="number">0x54</span>,<span class="number">0x6c</span>,<span class="number">0x30</span>,<span class="number">0x2b</span>,<span class="number">0x61</span>,<span class="number">0x67</span>,<span class="number">0x2d</span>,<span class="number">0x4c</span>,<span class="number">0x5f</span>,<span class="number">0x33</span>,<span class="number">0x4d</span>,<span class="number">0x7d</span>,<span class="number">0x7b</span>]</span><br><span class="line"><span class="keyword">print</span> <span class="string">''</span>.join(chr(i) <span class="keyword">for</span> i <span class="keyword">in</span> cipher)</span><br><span class="line">flag=<span class="string">''</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">19</span>):</span><br><span class="line">        flag+=chr(cipher[s.index(ord(shuru[i]))])</span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> flag</span><br></pre></td></tr></table></figure>
+
+<p>成功获得<code>flag</code></p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"> ⚙ jcxp@ubuntu  ~<span class="regexp">/ctf/dianfengjike</span>  python a.py</span><br><span class="line"><span class="number">19</span></span><br><span class="line">ipgmjaobnqcdhklrfse</span><br><span class="line">S@yRtfTl0+ag-L_3M&#125;&#123;</span><br><span class="line">flag&#123;My-StL_R0T@+<span class="number">3</span>&#125;</span><br></pre></td></tr></table></figure>
+    </article>
+    <!-- license  -->
+    
+    <!-- paginator  -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href= "/2019/11/06/cnas能力验证攻防比赛writeup/" title= "cnas能力验证攻防比赛writeup">
+                    <div class="prevTitle">cnas能力验证攻防比赛writeup</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- 评论插件 -->
+    <!-- 来必力City版安装代码 -->
+
+<!-- City版安装代码已完成 -->
+    
+    
+    <!-- partial('_partial/comment/changyan') -->
+    <!--PC版-->
+
+
+    
+    
+
+    <!-- 评论 -->
+</main>
+            <!-- profile -->
+            
+        </div>
+        <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+    <div class="social">
+        
+    
+        
+            
+                <a href="mailto:jiancanxuepiao@qq.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="//github.com/jcxp" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+    </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- 不蒜子  -->
+    
+    <div class="busuanzi-container">
+    
+     
+    <span id="busuanzi_container_site_pv">PV: <span id="busuanzi_value_site_pv"></span> :)</span>
+    
+    </div>
+    
+</footer>
+    </div>
+    <!-- toc -->
+    
+    <div class="toc-wrapper" style=
+    
+
+
+
+
+
+
+
+top:50vh;
+
+    >
+        <div class="toc-catalog">
+            <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+        </div>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#分析"><span class="toc-number">2.</span> <span class="toc-text">分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#调试"><span class="toc-number">3.</span> <span class="toc-text">调试</span></a></li></ol>
+    </div>
+    
+    <div class="back-top iconfont-archer">&#xe639;</div>
+    <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+          <div class="sidebar-panel-archives">
+    <!-- 在ejs中将archive按照时间排序 -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 8
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+    
+    
+    
+    <div class="archive-year"> 2019 </div>
+    <ul class="year-list">
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/07</span><a class="archive-post-title" href= "/2019/11/07/巅峰极客逆向之flodb分析/" >巅峰极客逆向之flodb分析</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/06</span><a class="archive-post-title" href= "/2019/11/06/cnas能力验证攻防比赛writeup/" >cnas能力验证攻防比赛writeup</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/24</span><a class="archive-post-title" href= "/2019/09/24/通过bytectf学习新的姿势/" >通过bytectf学习新的姿势</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/20</span><a class="archive-post-title" href= "/2019/09/20/XCTF云安全共测大赛初赛-fkroman-writeup/" >XCTF云安全共测大赛初赛 fkroman writeup</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/19</span><a class="archive-post-title" href= "/2019/09/19/利用-IO-2-1-stdout-泄露信息/" >利用_IO_2_1_stdout_泄露信息</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/11</span><a class="archive-post-title" href= "/2019/09/11/护网杯-flower-Writeup/" >护网杯 flower Writeup</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/11</span><a class="archive-post-title" href= "/2019/09/11/护网杯-silentheap-writeup/" >护网杯 silentheap writeup</a>
+        </li>
+    
+    
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/11</span><a class="archive-post-title" href= "/2019/09/11/护网杯-mergeheap-Writeup/" >护网杯 mergeheap Writeup</a>
+        </li>
+    
+    </div>
+  </div>
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+    
+        <span class="sidebar-tag-name" data-tags="_IO_2_1_stdout_"><span class="iconfont-archer">&#xe606;</span>_IO_2_1_stdout_</span>
+    
+        <span class="sidebar-tag-name" data-tags="tcache"><span class="iconfont-archer">&#xe606;</span>tcache</span>
+    
+        <span class="sidebar-tag-name" data-tags="Reverse"><span class="iconfont-archer">&#xe606;</span>Reverse</span>
+    
+        <span class="sidebar-tag-name" data-tags="off-by-null"><span class="iconfont-archer">&#xe606;</span>off-by-null</span>
+    
+        <span class="sidebar-tag-name" data-tags="Writeup"><span class="iconfont-archer">&#xe606;</span>Writeup</span>
+    
+        <span class="sidebar-tag-name" data-tags="global_max_fast"><span class="iconfont-archer">&#xe606;</span>global_max_fast</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+    缺失模块。<br/>
+    1、请确保node版本大于6.2<br/>
+    2、在博客根目录（注意不是archer根目录）执行以下命令：<br/>
+    <span style="color: #f75357; font-size: 1rem; line-height: 2rem;">npm i hexo-generator-json-content --save</span><br/>
+    3、在根目录_config.yml里添加配置：
+    <pre style="color: #787878; font-size: 0.6rem;">
+jsonContent:
+  meta: false
+  pages: false
+  posts:
+    title: true
+    date: true
+    path: true
+    text: false
+    raw: false
+    content: false
+    slug: false
+    updated: false
+    comments: false
+    link: false
+    permalink: false
+    excerpt: false
+    categories: true
+    tags: true</pre>
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+        <span class="sidebar-category-name" data-categories="pwn"><span class="iconfont-archer">&#xe60a;</span>pwn</span>
+    
+        <span class="sidebar-category-name" data-categories="ctf"><span class="iconfont-archer">&#xe60a;</span>ctf</span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+    </div>
+</div> 
+    <script>
+    var siteMeta = {
+        root: "/",
+        author: "jcxp"
+    }
+</script>
+    <!-- CDN failover -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ === 'undefined')
+        {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js">\x3C/script>')
+        }
+    </script>
+    <script src="/scripts/main.js"></script>
+    <!-- algolia -->
+    
+    <!-- busuanzi  -->
+    
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    
+    <!-- CNZZ  -->
+    
+    </div>
+    <!-- async load share.js -->
+    
+        <script src="/scripts/share.js" async></script>    
+     
+    </body>
+</html>
+
+
