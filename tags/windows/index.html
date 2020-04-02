@@ -346,57 +346,30 @@
     
     
     <article class="index-post">
-        <a class="abstract-title" href = "/2019/09/20/XCTF云安全共测大赛初赛-fkroman-writeup/" >
+        <a class="abstract-title" href = "/2020/03/31/VE-2020-0796-SMB漏洞分析/" >
             
-                <span>XCTF云安全共测大赛初赛 fkroman writeup</span>
+                <span>VE-2020-0796  SMB漏洞分析</span>
         </a>
         <div class="abstract-content">
-            前言这道题又是UAF+_IO_2_1_stdout_的利用,关于_IO_2_1_stdout_可以参考这篇文章
-漏洞分析这道题在free时存在明显的UAF漏洞,另外这道菜单堆的show部分只输出固定的字符串No way  
-1234567891011int __fastcall free_(unsigned int a1)&#123;  int result; // eax  if ( a1 &lt;= 0xFF )  &#123;    free(qword_4060[a1]);    result = puts("Done!\n");                   // uaf...
+            前言微软安全中心在北京时间3月12日23时发布了影响Windows 10 等系统用户的SMBv3远程代码执行漏洞补丁
+漏洞原因漏洞发生在srv2.sys中,由于SMB没有正确处理压缩的数据包,在解压数据包的时候使用客户端传过来的长度进行解压时,并没有检查长度是否合法.最终导致整数溢出。
+漏洞分析看一下调用过程:Srv2ReceiveHandler调用Srv2DecompressMessageAsync  
+Srv2DecompressMessageAsync 调用Srv2DecompressData  
+  
+漏洞在Srv2DecompressData函数中
+
+攻击者可以控制Origin...
         </div>
         <div class="abstract-post-meta">
             <!-- date  -->
             <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2019/09/20</span>
+                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2020/03/31</span>
             </div>
             <!-- tags  -->
             
             <div class= abstract-tags >
     
-        <a class="post-tag" href="javascript:void(0);" data-tags = "_IO_2_1_stdout_">_IO_2_1_stdout_</a>
-    
-</div>
-            
-        </div>
-    </article>
-    
-    
-    
-    
-    
-    
-    <article class="index-post">
-        <a class="abstract-title" href = "/2019/09/19/利用-IO-2-1-stdout-泄露信息/" >
-            
-                <span>利用_IO_2_1_stdout_泄露信息</span>
-        </a>
-        <div class="abstract-content">
-            前言在最近的ctf比赛中,出现了好几次无法通过输出泄露libc地址的题目,本文通过两道例题学习一下利用_IO_2_1_stdout_泄露信息.
-FILE 介绍FILE 在 Linux 系统的标准IO库中是用于描述文件的结构，称为文件流。 FILE结构在程序执行 fopen等函数时会进行创建，并分配在堆中。我们常定义一个指向FILE结构的指针来接收这个返回值。
-FILE 结构定义在 libio.h 中:
-123456789101112131415161718192021222324252627282930313233343536373839404142struct _IO_FILE &#1...
-        </div>
-        <div class="abstract-post-meta">
-            <!-- date  -->
-            <div class="abstract-date">
-                <span class="abstract-calander iconfont-archer">&#xe676;</span><span class="abstract-time">2019/09/19</span>
-            </div>
-            <!-- tags  -->
-            
-            <div class= abstract-tags >
-    
-        <a class="post-tag" href="javascript:void(0);" data-tags = "_IO_2_1_stdout_">_IO_2_1_stdout_</a>
+        <a class="post-tag" href="javascript:void(0);" data-tags = "windows">windows</a>
     
 </div>
             
